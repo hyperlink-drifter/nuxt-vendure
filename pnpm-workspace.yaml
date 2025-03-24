@@ -5,3 +5,4 @@ onlyBuiltDependencies:
   - '@nestjs/core'
   - bcrypt
   - sharp
+  - vue-demi
