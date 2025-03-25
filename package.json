@@ -1,6 +1,10 @@
 {
   "name": "root",
   "private": true,
+  "scripts": {
+    "dev": "pnpx lerna run dev",
+    "build": "pnpx lerna run build"
+  },
   "dependencies": {},
   "devDependencies": {
     "lerna": "^8.2.1"
