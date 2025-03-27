@@ -4,7 +4,12 @@ const { t } = useI18n();
 
 <template>
   <h2>{{ t('ui') }}</h2>
-  <NuxtLinkLocale to="/">{{ t('welcome') }}</NuxtLinkLocale>
+  <div>
+    <NuxtLinkLocale to="/">{{ t('welcome') }}</NuxtLinkLocale>
+  </div>
+  <div>
+    <NuxtLinkLocale to="/products">{{ t('products') }}</NuxtLinkLocale>
+  </div>
   <div>
     <SwitchLocalePathLink locale="en">english</SwitchLocalePathLink>
   </div>
