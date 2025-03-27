@@ -3,6 +3,9 @@ packages:
 onlyBuiltDependencies:
   - '@apollo/protobufjs'
   - '@nestjs/core'
+  - '@parcel/watcher'
   - bcrypt
+  - esbuild
+  - nx
   - sharp
   - vue-demi
