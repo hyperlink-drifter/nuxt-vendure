@@ -1,3 +1,5 @@
+import tailwindcss from '@tailwindcss/vite';
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
@@ -8,7 +10,7 @@ export default defineNuxtConfig({
     compatibilityVersion: 4,
   },
 
-  modules: ['@nuxtjs/tailwindcss', 'shadcn-nuxt', '@nuxtjs/i18n'],
+  modules: ['shadcn-nuxt', '@nuxtjs/i18n'],
 
   shadcn: {
     /**
@@ -28,4 +30,10 @@ export default defineNuxtConfig({
     defaultLocale: 'en',
     strategy: 'prefix',
   },
+
+  vite: {
+    plugins: [tailwindcss()],
+  },
+
+  css: ['~/assets/css/main.css'],
 });
