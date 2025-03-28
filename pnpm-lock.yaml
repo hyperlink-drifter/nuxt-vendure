@@ -71,6 +71,9 @@ importers:
 
   packages/vendure:
     dependencies:
+      '@hyperlinkdrifter/vendure-plugin-cron':
+        specifier: file:../vendure-plugin-cron
+        version: link:../vendure-plugin-cron
       '@vendure/admin-ui-plugin':
         specifier: 3.1.7
         version: 3.1.7(express@4.21.2)
@@ -7750,7 +7753,7 @@ snapshots:
 
   '@graphql-tools/merge@9.0.11(graphql@16.9.0)':
     dependencies:
-      '@graphql-tools/utils': 10.8.6(graphql@16.9.0)
+      '@graphql-tools/utils': 10.6.1(graphql@16.9.0)
       graphql: 16.9.0
       tslib: 2.8.1
 
@@ -7762,8 +7765,8 @@ snapshots:
 
   '@graphql-tools/schema@10.0.10(graphql@16.9.0)':
     dependencies:
-      '@graphql-tools/merge': 9.0.24(graphql@16.9.0)
-      '@graphql-tools/utils': 10.8.6(graphql@16.9.0)
+      '@graphql-tools/merge': 9.0.11(graphql@16.9.0)
+      '@graphql-tools/utils': 10.6.1(graphql@16.9.0)
       graphql: 16.9.0
       tslib: 2.8.1
       value-or-promise: 1.0.12
@@ -12151,7 +12154,7 @@ snapshots:
 
   log-symbols@4.1.0:
     dependencies:
-      chalk: 4.1.0
+      chalk: 4.1.2
       is-unicode-supported: 0.1.0
 
   loglevel@1.9.2: {}
