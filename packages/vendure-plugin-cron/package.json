@@ -33,7 +33,8 @@
   ],
   "scripts": {
     "dev": "node -e \"console.log('script started at: %s', Date())\"",
-    "unbuild": "unbuild"
+    "unbuild": "unbuild",
+    "build": "unbuild"
   },
   "peerDependencies": {
     "@nestjs/common": "^10.0.0",
