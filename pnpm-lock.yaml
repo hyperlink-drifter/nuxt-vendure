@@ -73,7 +73,7 @@ importers:
     dependencies:
       '@hyperlinkdrifter/vendure-plugin-cron':
         specifier: file:../vendure-plugin-cron
-        version: link:../vendure-plugin-cron
+        version: file:packages/vendure-plugin-cron(@nestjs/common@10.4.15(reflect-metadata@0.2.2)(rxjs@7.8.2))(@vendure/core@3.1.7(@types/express@4.17.21)(encoding@0.1.13)(ioredis@5.6.0)(pg@8.14.1)(ts-morph@21.0.1)(ts-node@10.9.2(@types/node@22.13.14)(typescript@5.8.2)))
       '@vendure/admin-ui-plugin':
         specifier: 3.1.7
         version: 3.1.7(express@4.21.2)
@@ -114,6 +114,9 @@ importers:
       '@vendure/core':
         specifier: 3.1.7
         version: 3.1.7(@types/express@4.17.21)(encoding@0.1.13)(ioredis@5.6.0)(pg@8.14.1)(ts-morph@21.0.1)(ts-node@10.9.2(@types/node@22.13.14)(typescript@5.8.2))
+      node-cron:
+        specifier: ^3.0.3
+        version: 3.0.3
 
 packages:
 
@@ -836,6 +839,12 @@ packages:
   '@hutson/parse-repository-url@3.0.2':
     resolution: {integrity: sha512-H9XAx3hc0BQHY6l+IFSWHDySypcXsvsuLhgYLUGywmJ5pswRVQJUHpOsobnLYp2ZUaUlKiKDrgWWhosOwAEM8Q==}
     engines: {node: '>=6.9.0'}
+
+  '@hyperlinkdrifter/vendure-plugin-cron@file:packages/vendure-plugin-cron':
+    resolution: {directory: packages/vendure-plugin-cron, type: directory}
+    peerDependencies:
+      '@nestjs/common': ^10.0.0
+      '@vendure/core': 3.1.7
 
   '@img/sharp-darwin-arm64@0.33.5':
     resolution: {integrity: sha512-UT4p+iz/2H4twwAoLCqfA9UH5pI6DggwKEGuaPy7nCVQ8ZsiY5PIcrRvD1DzuY3qYL07NtIQcWnBSY/heikIFQ==}
@@ -5015,6 +5024,10 @@ packages:
   node-addon-api@7.1.1:
     resolution: {integrity: sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==}
 
+  node-cron@3.0.3:
+    resolution: {integrity: sha512-dOal67//nohNgYWb+nWmg5dkFdIwDm8EpeGYMekPMrngV3637lqnX0lbUcCtgibHTz6SEz7DAIjKvKDFYCnO1A==}
+    engines: {node: '>=6.0.0'}
+
   node-fetch-native@1.6.6:
     resolution: {integrity: sha512-8Mc2HhqPdlIfedsuZoc3yioPuzp6b+L5jRCRY1QzuWZh2EGJVQrGppC6V6cF0bLdbW0+O2YpqCA25aF/1lvipQ==}
 
@@ -6776,6 +6789,10 @@ packages:
     resolution: {integrity: sha512-d0z310fCWv5dJwnX1Y/MncBAqGMKEzlBb1AOf7z9K8ALnd0utBX/msg/fA0+sbyN1ihbMsLhrBlnl1ak7Wa0rg==}
     hasBin: true
 
+  uuid@8.3.2:
+    resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    hasBin: true
+
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
     hasBin: true
@@ -7849,6 +7866,11 @@ snapshots:
   '@humanwhocodes/retry@0.4.2': {}
 
   '@hutson/parse-repository-url@3.0.2': {}
+
+  '@hyperlinkdrifter/vendure-plugin-cron@file:packages/vendure-plugin-cron(@nestjs/common@10.4.15(reflect-metadata@0.2.2)(rxjs@7.8.2))(@vendure/core@3.1.7(@types/express@4.17.21)(encoding@0.1.13)(ioredis@5.6.0)(pg@8.14.1)(ts-morph@21.0.1)(ts-node@10.9.2(@types/node@22.13.14)(typescript@5.8.2)))':
+    dependencies:
+      '@nestjs/common': 10.4.15(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@vendure/core': 3.1.7(@types/express@4.17.21)(encoding@0.1.13)(ioredis@5.6.0)(pg@8.14.1)(ts-morph@21.0.1)(ts-node@10.9.2(@types/node@22.13.14)(typescript@5.8.2))
 
   '@img/sharp-darwin-arm64@0.33.5':
     optionalDependencies:
@@ -12872,6 +12894,10 @@ snapshots:
 
   node-addon-api@7.1.1: {}
 
+  node-cron@3.0.3:
+    dependencies:
+      uuid: 8.3.2
+
   node-fetch-native@1.6.6: {}
 
   node-fetch@2.6.7(encoding@0.1.13):
@@ -14821,6 +14847,8 @@ snapshots:
   uuid@10.0.0: {}
 
   uuid@11.0.3: {}
+
+  uuid@8.3.2: {}
 
   uuid@9.0.1: {}
 
