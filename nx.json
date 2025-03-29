@@ -5,11 +5,11 @@
       "dependsOn": ["^build"],
       "outputs": ["{projectRoot}/dist", "{projectRoot}/.output"]
     },
-    "unbuild": {
-      "dependsOn": ["^unbuild"]
+    "compile": {
+      "dependsOn": ["^compile"]
     },
     "dev": {
-      "dependsOn": ["unbuild", "^dev"]
+      "dependsOn": ["compile", "^dev"]
     }
   }
 }
