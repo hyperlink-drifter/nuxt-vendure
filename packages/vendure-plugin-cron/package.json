@@ -5,7 +5,6 @@
   "homepage": "https://github.com/hyperlink-drifter/nuxt-vendure/vendure-plugin-cron#readme",
   "license": "MIT",
   "private": false,
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hyperlink-drifter/nuxt-vendure.git"
@@ -13,32 +12,19 @@
   "bugs": {
     "url": "https://github.com/hyperlink-drifter/nuxt-vendure/issues"
   },
-  "exports": {
-    ".": {
-      "import": {
-        "types": "./dist/index.d.mts",
-        "default": "./dist/index.mjs"
-      },
-      "require": {
-        "types": "./dist/index.d.cts",
-        "default": "./dist/index.cjs"
-      }
-    },
-    "./package.json": "./package.json"
-  },
-  "main": "./dist/index.cjs",
-  "types": "./dist/index.d.cts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
-    "dist"
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md"
   ],
   "scripts": {
     "dev": "node -e \"console.log('script started at: %s', Date())\"",
-    "unbuild": "unbuild",
-    "build": "unbuild"
-  },
-  "peerDependencies": {
-    "@nestjs/common": "^10.0.0",
-    "@vendure/core": "3.1.7"
+    "build": "rimraf dist && tsc -p ./tsconfig.build.json",
+    "compile": "rimraf dist && tsc -p ./tsconfig.build.json"
   },
   "dependencies": {
     "cron": "^4.1.3"
