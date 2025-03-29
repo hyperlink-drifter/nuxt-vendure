@@ -1,7 +1,17 @@
-import { PluginCommonModule, Type, VendurePlugin, Logger } from '@vendure/core';
+import {
+  PluginCommonModule,
+  Type,
+  VendurePlugin,
+  Logger,
+  EventBus,
+  RequestContextService,
+  ProcessContext,
+} from '@vendure/core';
 import { OnApplicationBootstrap } from '@nestjs/common';
 import { PLUGIN_INIT_OPTIONS, loggerCtx } from './constants';
-import { PluginInitOptions } from './types';
+import { PluginInitOptions, Job } from './types';
+import { CronJob } from 'cron';
+import { CronEvent } from './cron.event';
 
 @VendurePlugin({
   imports: [PluginCommonModule],
@@ -21,7 +31,14 @@ import { PluginInitOptions } from './types';
   compatibility: '^3.0.0',
 })
 export class CronPlugin implements OnApplicationBootstrap {
-  static options: PluginInitOptions;
+  /** @internal */
+  constructor(
+    private eventBus: EventBus,
+    private requestContextService: RequestContextService,
+    private processContext: ProcessContext
+  ) {}
+
+  static options: PluginInitOptions = { cron: [], logEvents: false };
 
   static init(options: PluginInitOptions): Type<CronPlugin> {
     this.options = options;
@@ -29,6 +46,19 @@ export class CronPlugin implements OnApplicationBootstrap {
   }
 
   async onApplicationBootstrap() {
-    Logger.info(`Cron Plugin is doing something!`, loggerCtx);
+    if (this.processContext.isWorker) {
+      Logger.info('Hello World... this is Plugin', loggerCtx);
+      const ctx = await this.requestContextService.create({
+        apiType: 'admin',
+      });
+
+      setTimeout(() => {
+        this.eventBus.publish(new CronEvent(ctx, 'xyz'));
+      }, 2000);
+
+      this.eventBus.ofType(CronEvent).subscribe((event) => {
+        Logger.info(`Cron Event "${event.taskId}" fired`, loggerCtx);
+      });
+    }
   }
 }
