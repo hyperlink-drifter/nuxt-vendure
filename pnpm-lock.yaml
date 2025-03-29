@@ -73,7 +73,7 @@ importers:
     dependencies:
       '@hyperlinkdrifter/vendure-plugin-cron':
         specifier: file:../vendure-plugin-cron
-        version: file:packages/vendure-plugin-cron(@nestjs/common@10.4.15(reflect-metadata@0.2.2)(rxjs@7.8.2))(@vendure/core@3.1.7(@types/express@4.17.21)(encoding@0.1.13)(ioredis@5.6.0)(pg@8.14.1)(ts-morph@21.0.1)(ts-node@10.9.2(@types/node@22.13.14)(typescript@5.8.2)))
+        version: link:../vendure-plugin-cron
       '@vendure/admin-ui-plugin':
         specifier: 3.1.7
         version: 3.1.7(express@4.21.2)
@@ -114,6 +114,9 @@ importers:
       '@vendure/core':
         specifier: 3.1.7
         version: 3.1.7(@types/express@4.17.21)(encoding@0.1.13)(ioredis@5.6.0)(pg@8.14.1)(ts-morph@21.0.1)(ts-node@10.9.2(@types/node@22.13.14)(typescript@5.8.2))
+      cron:
+        specifier: ^4.1.3
+        version: 4.1.3
 
 packages:
 
@@ -836,12 +839,6 @@ packages:
   '@hutson/parse-repository-url@3.0.2':
     resolution: {integrity: sha512-H9XAx3hc0BQHY6l+IFSWHDySypcXsvsuLhgYLUGywmJ5pswRVQJUHpOsobnLYp2ZUaUlKiKDrgWWhosOwAEM8Q==}
     engines: {node: '>=6.9.0'}
-
-  '@hyperlinkdrifter/vendure-plugin-cron@file:packages/vendure-plugin-cron':
-    resolution: {directory: packages/vendure-plugin-cron, type: directory}
-    peerDependencies:
-      '@nestjs/common': ^10.0.0
-      '@vendure/core': 3.1.7
 
   '@img/sharp-darwin-arm64@0.33.5':
     resolution: {integrity: sha512-UT4p+iz/2H4twwAoLCqfA9UH5pI6DggwKEGuaPy7nCVQ8ZsiY5PIcrRvD1DzuY3qYL07NtIQcWnBSY/heikIFQ==}
@@ -2158,6 +2155,9 @@ packages:
   '@types/long@4.0.2':
     resolution: {integrity: sha512-MqTGEo5bj5t157U6fA/BiDynNkn0YknVdh48CMPkTSpFTVmvao5UQmm7uEF6xBEo7qIMAlY/JSleYaE6VOdpaA==}
 
+  '@types/luxon@3.4.2':
+    resolution: {integrity: sha512-TifLZlFudklWlMBfhubvgqTXRzLDI5pCbGa4P8a3wPyUQSW+1xQ5eDsreP9DWHX3tjq1ke96uYG/nwundroWcA==}
+
   '@types/mime@1.3.5':
     resolution: {integrity: sha512-/pyBZWSLD2n0dcHE3hq8s8ZvcETHtEuF+3E7XVt0Ig2nvsVQXdghHVcEkIWjy9A0wKfTn97a/PSDYohKIlnP/w==}
 
@@ -3028,6 +3028,10 @@ packages:
 
   create-require@1.1.1:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
+
+  cron@4.1.3:
+    resolution: {integrity: sha512-HETm5kgivcdfboOmBIzq0cfC9c5bRilWZ1p7PWwnOMmbWviwIU6mPgZbeqbj5i0AzNan6P68WDTDEDezhKjOng==}
+    engines: {node: '>=18.x'}
 
   croner@9.0.0:
     resolution: {integrity: sha512-onMB0OkDjkXunhdW9htFjEhqrD54+M94i6ackoUkjHKbRnXdyEyKRelp4nJ1kAz32+s27jP1FsebpJCVl0BsvA==}
@@ -4599,6 +4603,10 @@ packages:
     peerDependencies:
       vue: '>=3.0.1'
 
+  luxon@3.6.0:
+    resolution: {integrity: sha512-WE7p0p7W1xji9qxkLYsvcIxZyfP48GuFrWIBQZIsbjCyf65dG1rv4n83HcOyEyhvzxJCrUoObCRNFgRNIQ5KNA==}
+    engines: {node: '>=12'}
+
   magic-string-ast@0.7.1:
     resolution: {integrity: sha512-ub9iytsEbT7Yw/Pd29mSo/cNQpaEu67zR1VVcXDiYjSFwzeBxNdTd0FMnSslLQXiRj8uGPzwsaoefrMD5XAmdw==}
     engines: {node: '>=16.14.0'}
@@ -5020,10 +5028,6 @@ packages:
 
   node-addon-api@7.1.1:
     resolution: {integrity: sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==}
-
-  node-cron@3.0.3:
-    resolution: {integrity: sha512-dOal67//nohNgYWb+nWmg5dkFdIwDm8EpeGYMekPMrngV3637lqnX0lbUcCtgibHTz6SEz7DAIjKvKDFYCnO1A==}
-    engines: {node: '>=6.0.0'}
 
   node-fetch-native@1.6.6:
     resolution: {integrity: sha512-8Mc2HhqPdlIfedsuZoc3yioPuzp6b+L5jRCRY1QzuWZh2EGJVQrGppC6V6cF0bLdbW0+O2YpqCA25aF/1lvipQ==}
@@ -6786,10 +6790,6 @@ packages:
     resolution: {integrity: sha512-d0z310fCWv5dJwnX1Y/MncBAqGMKEzlBb1AOf7z9K8ALnd0utBX/msg/fA0+sbyN1ihbMsLhrBlnl1ak7Wa0rg==}
     hasBin: true
 
-  uuid@8.3.2:
-    resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
-    hasBin: true
-
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
     hasBin: true
@@ -7863,12 +7863,6 @@ snapshots:
   '@humanwhocodes/retry@0.4.2': {}
 
   '@hutson/parse-repository-url@3.0.2': {}
-
-  '@hyperlinkdrifter/vendure-plugin-cron@file:packages/vendure-plugin-cron(@nestjs/common@10.4.15(reflect-metadata@0.2.2)(rxjs@7.8.2))(@vendure/core@3.1.7(@types/express@4.17.21)(encoding@0.1.13)(ioredis@5.6.0)(pg@8.14.1)(ts-morph@21.0.1)(ts-node@10.9.2(@types/node@22.13.14)(typescript@5.8.2)))':
-    dependencies:
-      '@nestjs/common': 10.4.15(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@vendure/core': 3.1.7(@types/express@4.17.21)(encoding@0.1.13)(ioredis@5.6.0)(pg@8.14.1)(ts-morph@21.0.1)(ts-node@10.9.2(@types/node@22.13.14)(typescript@5.8.2))
-      node-cron: 3.0.3
 
   '@img/sharp-darwin-arm64@0.33.5':
     optionalDependencies:
@@ -9330,6 +9324,8 @@ snapshots:
 
   '@types/long@4.0.2': {}
 
+  '@types/luxon@3.4.2': {}
+
   '@types/mime@1.3.5': {}
 
   '@types/minimatch@3.0.5': {}
@@ -10472,6 +10468,11 @@ snapshots:
       readable-stream: 4.7.0
 
   create-require@1.1.1: {}
+
+  cron@4.1.3:
+    dependencies:
+      '@types/luxon': 3.4.2
+      luxon: 3.6.0
 
   croner@9.0.0: {}
 
@@ -12203,6 +12204,8 @@ snapshots:
     dependencies:
       vue: 3.5.13(typescript@5.8.2)
 
+  luxon@3.6.0: {}
+
   magic-string-ast@0.7.1:
     dependencies:
       magic-string: 0.30.17
@@ -12891,10 +12894,6 @@ snapshots:
   node-addon-api@5.1.0: {}
 
   node-addon-api@7.1.1: {}
-
-  node-cron@3.0.3:
-    dependencies:
-      uuid: 8.3.2
 
   node-fetch-native@1.6.6: {}
 
@@ -14845,8 +14844,6 @@ snapshots:
   uuid@10.0.0: {}
 
   uuid@11.0.3: {}
-
-  uuid@8.3.2: {}
 
   uuid@9.0.1: {}
 
