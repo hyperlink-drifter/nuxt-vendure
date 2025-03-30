@@ -15,11 +15,10 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist/**/*.js",
-    "dist/**/*.d.ts",
+    "dist",
+    "README.md",
     "CHANGELOG.md",
-    "LICENSE",
-    "README.md"
+    "LICENSE"
   ],
   "scripts": {
     "dev": "node -e \"console.log('script started at: %s', Date())\"",
