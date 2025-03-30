@@ -14,6 +14,7 @@ import { AdminUiPlugin } from '@vendure/admin-ui-plugin';
 import 'dotenv/config';
 import path from 'path';
 import { CronPlugin } from '@hyperlinkdrifter/vendure-plugin-cron';
+import { KeycrmPlugin } from '@hyperlinkdrifter/vendure-plugin-keycrm';
 
 const IS_DEV = process.env.APP_ENV === 'dev';
 const serverPort = +process.env.PORT || 3000;
@@ -105,6 +106,17 @@ export const config: VendureConfig = {
         apiPort: serverPort,
       },
     }),
-    CronPlugin.init({}),
+    CronPlugin.init({
+      cron: [
+        {
+          schedule: '* * * * * *',
+          taskId: 'midnightBackup',
+        },
+      ],
+      logEvents: true,
+    }),
+    KeycrmPlugin.init({
+      apiKey: 'true',
+    }),
   ],
 };
