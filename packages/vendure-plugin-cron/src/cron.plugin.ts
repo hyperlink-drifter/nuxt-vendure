@@ -47,17 +47,38 @@ export class CronPlugin implements OnApplicationBootstrap {
 
   async onApplicationBootstrap() {
     if (this.processContext.isWorker) {
-      Logger.info('Hello World... this is Plugin', loggerCtx);
-      const ctx = await this.requestContextService.create({
-        apiType: 'admin',
-      });
+      CronPlugin.options.cron.forEach((job: Job) => {
+        if (!job.task && !job.taskId) {
+          Logger.error(
+            'Please provide either a task function or a taskId to run a cronjob.',
+            loggerCtx
+          );
+          return;
+        }
 
-      setTimeout(() => {
-        this.eventBus.publish(new CronEvent(ctx, 'xyz'));
-      }, 2000);
+        CronJob.from({
+          cronTime: job.schedule,
+          onTick: async () => {
+            if (job.task) job.task();
+            if (job.taskId) {
+              if (CronPlugin.options.logEvents) {
+                Logger.info('Firing Event', loggerCtx);
+              }
+              const ctx = await this.requestContextService.create({
+                apiType: 'admin',
+              });
+              this.eventBus.publish(new CronEvent(ctx, job.taskId));
+            }
+          },
+          start: true,
+          timeZone: 'system',
+        });
 
-      this.eventBus.ofType(CronEvent).subscribe((event) => {
-        Logger.info(`Cron Event "${event.taskId}" fired`, loggerCtx);
+        if (CronPlugin.options.logEvents) {
+          this.eventBus.ofType(CronEvent).subscribe((event) => {
+            Logger.info(`Cron Event "${event.taskId}" fired`, loggerCtx);
+          });
+        }
       });
     }
   }
