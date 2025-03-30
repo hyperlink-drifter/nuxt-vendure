@@ -6,12 +6,19 @@ import {
   EventBus,
   RequestContextService,
   ProcessContext,
+  VendureEvent,
+  RequestContext,
 } from '@vendure/core';
 import { OnApplicationBootstrap } from '@nestjs/common';
 import { PLUGIN_INIT_OPTIONS, loggerCtx } from './constants';
 import { PluginInitOptions, Job } from './types';
 import { CronJob } from 'cron';
-import { CronEvent } from './cron.event';
+
+export class CronEvent extends VendureEvent {
+  constructor(public ctx: RequestContext, public readonly taskId: string) {
+    super();
+  }
+}
 
 @VendurePlugin({
   imports: [PluginCommonModule],
