@@ -1,0 +1,33 @@
+{
+  "name": "@hyperlinkdrifter/vendure-plugin-keycrm",
+  "version": "1.0.0",
+  "description": "A vendure plugin to use keycrm.app as single source of truth",
+  "homepage": "https://github.com/hyperlink-drifter/nuxt-vendure/vendure-plugin-keycrm#readme",
+  "license": "MIT",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hyperlink-drifter/nuxt-vendure.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hyperlink-drifter/nuxt-vendure/issues"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "dev": "node -e \"console.log('script started at: %s', Date())\"",
+    "build": "rimraf dist && tsc -p ./tsconfig.build.json",
+    "compile": "rimraf dist && tsc -p ./tsconfig.build.json"
+  },
+  "dependencies": {},
+  "keywords": [
+    "Vendure",
+    "Keycrm"
+  ]
+}
