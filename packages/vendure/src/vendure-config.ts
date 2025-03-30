@@ -116,7 +116,7 @@ export const config: VendureConfig = {
       logEvents: true,
     }),
     KeycrmPlugin.init({
-      apiKey: 'true',
+      apiKey: process.env.KEYCRM_API_KEY,
     }),
   ],
 };
