@@ -1,10 +1,10 @@
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import {
   ID,
+  Logger,
   Product,
   RequestContext,
   TransactionalConnection,
-  Logger,
 } from '@vendure/core';
 import { KEYCRM_PLUGIN_OPTIONS, loggerCtx } from '../constants';
 import { PluginInitOptions } from '../types';
@@ -16,12 +16,14 @@ export class KeycrmService implements OnApplicationBootstrap {
     @Inject(KEYCRM_PLUGIN_OPTIONS) private options: PluginInitOptions
   ) {}
 
-  async exampleMethod(ctx: RequestContext, id: ID) {
+  async getKeycrm(ctx: RequestContext, KeycrmId: string) {
     // Add your method logic here
-    const result = await this.connection
-      .getRepository(ctx, Product)
-      .findOne({ where: { id } });
-    return result;
+    Logger.info(`KeycrmId: ${KeycrmId}`, loggerCtx);
+
+    return {
+      id: KeycrmId,
+      name: 'this-is-democracy-manifest-t-shirt',
+    };
   }
 
   async onApplicationBootstrap() {
