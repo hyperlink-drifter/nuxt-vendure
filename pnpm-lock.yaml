@@ -11,6 +11,9 @@ importers:
       '@nestjs/common':
         specifier: ^10.0.0
         version: 10.4.15(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/graphql':
+        specifier: ~12.2.1
+        version: 12.2.2(@nestjs/common@10.4.15(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@10.4.15)(graphql@16.9.0)(reflect-metadata@0.2.2)(ts-morph@21.0.1)
       '@types/node':
         specifier: ^22.13.14
         version: 22.13.14
@@ -23,6 +26,9 @@ importers:
       '@vendure/core':
         specifier: 3.1.7
         version: 3.1.7(@types/express@4.17.21)(encoding@0.1.13)(ioredis@5.6.0)(pg@8.14.1)(ts-morph@21.0.1)(ts-node@10.9.2(@types/node@22.13.14)(typescript@5.3.3))
+      graphql-tag:
+        specifier: ^2.12.6
+        version: 2.12.6(graphql@16.9.0)
       lerna:
         specifier: ^8.2.1
         version: 8.2.1(encoding@0.1.13)
@@ -8135,16 +8141,16 @@ snapshots:
       reflect-metadata: 0.2.2
       rxjs: 7.8.2
     optionalDependencies:
-      '@nestjs/typeorm': 10.0.2(@nestjs/common@10.4.15(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@10.4.15)(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.21(ioredis@5.6.0)(pg@8.14.1)(reflect-metadata@0.2.2)(ts-node@10.9.2(@types/node@22.13.14)(typescript@5.3.3)))
+      '@nestjs/typeorm': 10.0.2(@nestjs/common@10.4.15(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@10.4.15)(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.20(ioredis@5.6.0)(pg@8.14.1)(ts-node@10.9.2(@types/node@22.13.14)(typescript@5.3.3)))
       typeorm: 0.3.20(ioredis@5.6.0)(pg@8.14.1)(ts-node@10.9.2(@types/node@22.13.14)(typescript@5.3.3))
 
-  '@nestjs/typeorm@10.0.2(@nestjs/common@10.4.15(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@10.4.15)(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.21(ioredis@5.6.0)(pg@8.14.1)(reflect-metadata@0.2.2)(ts-node@10.9.2(@types/node@22.13.14)(typescript@5.3.3)))':
+  '@nestjs/typeorm@10.0.2(@nestjs/common@10.4.15(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@10.4.15)(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.20(ioredis@5.6.0)(pg@8.14.1)(ts-node@10.9.2(@types/node@22.13.14)(typescript@5.3.3)))':
     dependencies:
       '@nestjs/common': 10.4.15(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/core': 10.4.15(@nestjs/common@10.4.15(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@10.4.15)(encoding@0.1.13)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       reflect-metadata: 0.2.2
       rxjs: 7.8.2
-      typeorm: 0.3.21(ioredis@5.6.0)(pg@8.14.1)(reflect-metadata@0.2.2)(ts-node@10.9.2(@types/node@22.13.14)(typescript@5.3.3))
+      typeorm: 0.3.20(ioredis@5.6.0)(pg@8.14.1)(ts-node@10.9.2(@types/node@22.13.14)(typescript@5.3.3))
       uuid: 9.0.1
 
   '@netlify/functions@3.0.4':
@@ -9276,7 +9282,7 @@ snapshots:
       '@nestjs/graphql': 12.2.2(@nestjs/common@10.4.15(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@10.4.15)(graphql@16.9.0)(reflect-metadata@0.2.2)(ts-morph@21.0.1)
       '@nestjs/platform-express': 10.4.15(@nestjs/common@10.4.15(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@10.4.15)
       '@nestjs/terminus': 10.2.3(@nestjs/common@10.4.15(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@10.4.15)(@nestjs/typeorm@10.0.2(@nestjs/common@10.4.15(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@10.4.15)(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.20(ioredis@5.6.0)(pg@8.14.1)(ts-node@10.9.2(@types/node@22.13.14)(typescript@5.3.3))))(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.20(ioredis@5.6.0)(pg@8.14.1)(ts-node@10.9.2(@types/node@22.13.14)(typescript@5.3.3)))
-      '@nestjs/typeorm': 10.0.2(@nestjs/common@10.4.15(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@10.4.15)(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.21(ioredis@5.6.0)(pg@8.14.1)(reflect-metadata@0.2.2)(ts-node@10.9.2(@types/node@22.13.14)(typescript@5.3.3)))
+      '@nestjs/typeorm': 10.0.2(@nestjs/common@10.4.15(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@10.4.15)(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.20(ioredis@5.6.0)(pg@8.14.1)(ts-node@10.9.2(@types/node@22.13.14)(typescript@5.3.3)))
       '@vendure/common': 3.1.7
       bcrypt: 5.1.1(encoding@0.1.13)
       body-parser: 1.20.3
