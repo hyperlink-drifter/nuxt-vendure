@@ -1,18 +1,11 @@
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
-import {
-  ID,
-  Logger,
-  Product,
-  RequestContext,
-  TransactionalConnection,
-} from '@vendure/core';
-import { KEYCRM_PLUGIN_OPTIONS, loggerCtx } from '../constants';
-import { PluginInitOptions } from '../types';
+import { Logger, RequestContext } from '@vendure/core';
+import { KEYCRM_PLUGIN_OPTIONS, loggerCtx } from './constants';
+import { PluginInitOptions } from './types';
 
 @Injectable()
 export class KeycrmService implements OnApplicationBootstrap {
   constructor(
-    private connection: TransactionalConnection,
     @Inject(KEYCRM_PLUGIN_OPTIONS) private options: PluginInitOptions
   ) {}
 

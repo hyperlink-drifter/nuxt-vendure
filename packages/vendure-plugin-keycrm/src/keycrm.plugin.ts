@@ -6,9 +6,9 @@ import {
 } from '@vendure/core';
 import { KEYCRM_PLUGIN_OPTIONS } from './constants';
 import { PluginInitOptions } from './types';
-import { KeycrmService } from './services/keycrm.service';
-import { ProductEntityResolver } from './api/keycrm-admin.resolver';
-import { shopApiExtensions } from './api/api-extensions';
+import { KeycrmService } from './keycrm.service';
+import { ProductEntityResolver } from './keycrm.resolver';
+import { shopApiExtensions } from './api-extensions';
 
 @VendurePlugin({
   imports: [PluginCommonModule],

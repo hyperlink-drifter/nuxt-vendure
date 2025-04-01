@@ -1,6 +1,6 @@
 import { Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { Ctx, RequestContext, Product } from '@vendure/core';
-import { KeycrmService } from '../services/keycrm.service';
+import { KeycrmService } from './keycrm.service';
 
 @Resolver('Product')
 export class ProductEntityResolver {
