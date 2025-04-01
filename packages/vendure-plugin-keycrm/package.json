@@ -25,7 +25,9 @@
     "build": "rimraf dist && tsc -p ./tsconfig.build.json",
     "compile": "rimraf dist && tsc -p ./tsconfig.build.json"
   },
-  "dependencies": {},
+  "dependencies": {
+    "ofetch": "^1.4.1"
+  },
   "keywords": [
     "Vendure",
     "Keycrm"

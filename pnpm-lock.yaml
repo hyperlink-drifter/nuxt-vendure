@@ -154,7 +154,11 @@ importers:
         specifier: ^4.1.3
         version: 4.1.3
 
-  packages/vendure-plugin-keycrm: {}
+  packages/vendure-plugin-keycrm:
+    dependencies:
+      ofetch:
+        specifier: ^1.4.1
+        version: 1.4.1
 
 packages:
 
