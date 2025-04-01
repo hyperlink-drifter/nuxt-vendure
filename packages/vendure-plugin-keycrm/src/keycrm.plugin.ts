@@ -7,6 +7,7 @@ import {
 import { KEYCRM_PLUGIN_OPTIONS } from './constants';
 import { PluginInitOptions } from './types';
 import { KeycrmService } from './keycrm.service';
+import { KeycrmClient } from './keycrm.client';
 import { ProductEntityResolver } from './keycrm.resolver';
 import { shopApiExtensions } from './api-extensions';
 
@@ -15,6 +16,7 @@ import { shopApiExtensions } from './api-extensions';
   providers: [
     { provide: KEYCRM_PLUGIN_OPTIONS, useFactory: () => KeycrmPlugin.options },
     KeycrmService,
+    KeycrmClient,
   ],
   configuration: (config) => {
     // Plugin-specific configuration

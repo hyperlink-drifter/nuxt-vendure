@@ -8,6 +8,6 @@ export class ProductEntityResolver {
 
   @ResolveField()
   keycrm(@Ctx() ctx: RequestContext, @Parent() product: Product) {
-    return this.keycrmService.getKeycrm(ctx, product.customFields.KeycrmId);
+    return this.keycrmService.getProduct(ctx, product.customFields.KeycrmId);
   }
 }
