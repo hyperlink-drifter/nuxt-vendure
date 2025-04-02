@@ -109,7 +109,7 @@ export const config: VendureConfig = {
     CronPlugin.init({
       cron: [
         {
-          schedule: '* * * * * *',
+          schedule: '* * 1 * * *',
           taskId: 'midnightBackup',
         },
       ],
@@ -117,6 +117,7 @@ export const config: VendureConfig = {
     }),
     KeycrmPlugin.init({
       apiKey: process.env.KEYCRM_API_KEY,
+      baseURL: process.env.KEYCRM_API_BASE_URL,
     }),
   ],
 };
