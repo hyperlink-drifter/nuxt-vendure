@@ -10,6 +10,15 @@ declare module '@vendure/core/dist/entity/custom-entity-fields' {
   }
 }
 
+declare module '@vendure/core' {
+  interface Product {
+    /**
+     * A Keycrm Product mapped to Vendure's Product Fields
+     */
+    keycrm: Product;
+  }
+}
+
 /**
  * @description
  * The plugin can be configured using the following options:
@@ -21,3 +30,20 @@ export interface PluginInitOptions {
   apiKey: string;
   baseURL: string;
 }
+
+export type KeycrmProduct = {
+  id: number;
+  name: string;
+  description: string | null;
+  thumbnail_url: string | null;
+  attachments_data: [] | string[];
+  quantity: number;
+  sku?: string;
+  min_price: number;
+  max_price: number;
+  has_offers: boolean;
+  is_archived: boolean;
+  category_id: number | null;
+  created_at: Date;
+  updated_at: Date;
+};
