@@ -3,6 +3,7 @@
 // Note: we are using a deep import here, rather than importing from `@vendure/core` due to
 // a possible bug in TypeScript (https://github.com/microsoft/TypeScript/issues/46617) which
 // causes issues when multiple plugins extend the same custom fields interface.
+import { LocaleString } from '@vendure/core';
 import { CustomProductFields } from '@vendure/core/dist/entity/custom-entity-fields';
 declare module '@vendure/core/dist/entity/custom-entity-fields' {
   interface CustomProductFields {
@@ -33,7 +34,7 @@ export interface PluginInitOptions {
 
 export type KeycrmProduct = {
   id: number;
-  name: string;
+  name: LocaleString;
   description: string | null;
   thumbnail_url: string | null;
   attachments_data: [] | string[];
