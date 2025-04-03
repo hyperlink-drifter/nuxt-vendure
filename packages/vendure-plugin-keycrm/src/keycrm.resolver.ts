@@ -68,6 +68,13 @@ export class ProductEntityResolver {
   }
 
   @ResolveField()
+  slug(@Parent() product: Product): Promise<string> {
+    if (!product.keycrm) {
+      throw new InternalServerError('error.entity-has-no-field-keycrm');
+    } else return Promise.resolve(product.keycrm.slug);
+  }
+
+  @ResolveField()
   description(@Parent() product: Product): Promise<string> {
     if (!product.keycrm) {
       throw new InternalServerError('error.entity-has-no-field-keycrm');
