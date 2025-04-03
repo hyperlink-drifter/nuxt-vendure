@@ -16,7 +16,7 @@ declare module '@vendure/core' {
     /**
      * A Keycrm Product mapped to Vendure's Product Fields
      */
-    keycrm: ProductKeycrmToVendure;
+    keycrm: Product | undefined;
   }
 }
 
@@ -47,17 +47,4 @@ export type ProductKeycrm = {
   category_id: number | null;
   created_at: Date;
   updated_at: Date;
-};
-
-export type ProductKeycrmToVendure = {
-  id: ID;
-  createdAt: Date;
-  updatedAt: Date;
-  name: string;
-  slug: string;
-  description: string;
-  enabled: boolean;
-  featuredAsset: Partial<Asset>;
-  assets: Partial<Asset>[];
-  translations: Array<Translation<VendureEntity>>;
 };
