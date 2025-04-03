@@ -88,4 +88,13 @@ export class ProductEntityResolver {
       throw new InternalServerError('error.entity-has-no-field-keycrm');
     } else return Promise.resolve(product.keycrm.featuredAsset);
   }
+
+  @ResolveField()
+  async assets(@Parent() product: Product): Promise<Asset[] | undefined> {
+    if (!product.keycrm) {
+      throw new InternalServerError('error.entity-has-no-field-keycrm');
+    } else {
+      return Promise.resolve(product.keycrm.assets.map(({ asset }) => asset));
+    }
+  }
 }
