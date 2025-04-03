@@ -10,6 +10,7 @@ import {
   RelationPaths,
   UserInputError,
   InternalServerError,
+  Asset,
 } from '@vendure/core';
 import { KeycrmService } from './keycrm.service';
 
@@ -79,5 +80,12 @@ export class ProductEntityResolver {
     if (!product.keycrm) {
       throw new InternalServerError('error.entity-has-no-field-keycrm');
     } else return Promise.resolve(product.keycrm.description);
+  }
+
+  @ResolveField()
+  featuredAsset(@Parent() product: Product): Promise<Asset | undefined> {
+    if (!product.keycrm) {
+      throw new InternalServerError('error.entity-has-no-field-keycrm');
+    } else return Promise.resolve(product.keycrm.featuredAsset);
   }
 }
