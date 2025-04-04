@@ -6,6 +6,7 @@ import {
   TranslatorService,
   InternalServerError,
   ProductOptionGroup,
+  ProductVariant,
 } from '@vendure/core';
 import { KEYCRM_PLUGIN_OPTIONS } from './constants';
 import { PluginInitOptions, ProductKeycrm } from './types';
@@ -13,6 +14,7 @@ import { KeycrmClient } from './keycrm.client';
 import {
   toVendureProductOptionGroup,
   toVendureProduct,
+  toVendureVariants,
 } from './keycrm.helpers';
 
 @Injectable()
@@ -61,5 +63,26 @@ export class KeycrmService {
     const optionGroups = toVendureProductOptionGroup(properties_agg, product);
 
     return Promise.resolve(optionGroups);
+  }
+
+  async getVariants(product: Product): Promise<Array<ProductVariant>> {
+    if (!product.keycrm) {
+      throw new InternalServerError('error.product.has-no-property-keycrm');
+    }
+
+    const offers = await this.keycrmClient.getOffers({
+      sort: 'id',
+      include: 'product',
+      limit: 50,
+      'filter[product_id]': product.keycrm.id.toString(),
+    });
+
+    try {
+      const variants = toVendureVariants(offers, product);
+      return Promise.resolve(variants);
+    } catch (e) {
+      console.error({ e });
+      return Promise.resolve([]);
+    }
   }
 }
