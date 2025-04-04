@@ -12,6 +12,7 @@ import {
   InternalServerError,
   Asset,
   ProductOptionGroup,
+  ProductVariant,
 } from '@vendure/core';
 import { KeycrmService } from './keycrm.service';
 
@@ -83,6 +84,11 @@ export class ProductEntityResolver {
     if (!product.keycrm) {
       throw new InternalServerError('error.entity-has-no-field-keycrm');
     } else return Promise.resolve(product.keycrm.description);
+  }
+
+  @ResolveField()
+  async variants(@Parent() product: Product): Promise<Array<ProductVariant>> {
+    return await this.keycrmService.getVariants(product);
   }
 
   @ResolveField()
