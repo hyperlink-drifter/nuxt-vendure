@@ -47,3 +47,24 @@ export type ProductKeycrm = {
   created_at: Date;
   updated_at: Date;
 };
+
+export type ProductOfferKeycrm = ProductKeycrm & {
+  properties_agg?: Record<string, string[]>;
+};
+
+export type OfferKeycrm = {
+  id: number;
+  product_id: number;
+  sku: string | null;
+  barcode: string | null;
+  thumbnail_url: string | null;
+  price: number;
+  purchased_price: number;
+  quantity: number;
+  weight: number | null;
+  length: number | null;
+  width: number | null;
+  height: number | null;
+  properties: Array<{ name: string; value: string }>;
+  product: ProductOfferKeycrm;
+};
