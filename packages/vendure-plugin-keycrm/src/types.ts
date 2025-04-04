@@ -3,7 +3,6 @@
 // Note: we are using a deep import here, rather than importing from `@vendure/core` due to
 // a possible bug in TypeScript (https://github.com/microsoft/TypeScript/issues/46617) which
 // causes issues when multiple plugins extend the same custom fields interface.
-import { Asset, ID, Translation, VendureEntity } from '@vendure/core';
 import { CustomProductFields } from '@vendure/core/dist/entity/custom-entity-fields';
 declare module '@vendure/core/dist/entity/custom-entity-fields' {
   interface CustomProductFields {
@@ -16,7 +15,7 @@ declare module '@vendure/core' {
     /**
      * A Keycrm Product mapped to Vendure's Product Fields
      */
-    keycrm: Product | undefined;
+    keycrm: (Product & Partial<ProductKeycrm>) | undefined;
   }
 }
 
