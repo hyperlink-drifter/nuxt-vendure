@@ -1,13 +1,15 @@
-import { AssetType } from '@vendure/core';
+import { AssetType, CurrencyCode, TaxCategory, TaxRate } from '@vendure/core';
 import type {
   LocaleString,
   Product,
   ProductOption,
   ProductOptionGroup,
+  ProductVariant,
   Translation,
   VendureEntity,
 } from '@vendure/core';
-import { ProductKeycrm } from './types';
+import { OfferKeycrm, ProductKeycrm } from './types';
+import { GlobalFlag } from '@vendure/common/lib/generated-shop-types';
 
 export function toVendureProduct(
   keycrmProduct: ProductKeycrm,
@@ -147,4 +149,67 @@ export function toVendureProductOptionGroup(
   }
 
   return optionGroups;
+}
+
+export function toVendureVariants(
+  offers: Array<OfferKeycrm>,
+  vendureProduct: Product
+): Array<ProductVariant> {
+  const variants: Array<ProductVariant> = [];
+
+  for (const offer of offers) {
+    variants.push({
+      id: offer.id,
+      deletedAt: null,
+      name: '' as LocaleString,
+      enabled: false,
+      sku: offer.sku ? offer.sku : '',
+      listPrice: offer.purchased_price,
+      listPriceIncludesTax: false,
+      currencyCode: CurrencyCode.UAH,
+      price: offer.price,
+      priceWithTax: 0,
+      taxRateApplied: new TaxRate(),
+      featuredAsset: {
+        source: offer.thumbnail_url ? offer.thumbnail_url : '',
+        // TODO: fall back values to satisfy type
+        name: '',
+        type: AssetType.IMAGE,
+        mimeType: '',
+        width: 0,
+        height: 0,
+        fileSize: 0,
+        preview: '',
+        tags: [],
+        channels: [],
+        id: '',
+        createdAt: vendureProduct.createdAt,
+        updatedAt: vendureProduct.updatedAt,
+        customFields: [],
+      },
+      featuredAssetId: '',
+      assets: [],
+      taxCategory: new TaxCategory(),
+      taxCategoryId: '',
+      productVariantPrices: [],
+      translations: [],
+      product: vendureProduct,
+      productId: vendureProduct.id,
+      outOfStockThreshold: 0,
+      useGlobalOutOfStockThreshold: false,
+      trackInventory: GlobalFlag.FALSE,
+      stockLevels: [],
+      stockMovements: [],
+      options: [],
+      facetValues: [],
+      customFields: vendureProduct.customFields,
+      collections: [],
+      channels: [],
+      lines: [],
+      createdAt: vendureProduct.createdAt,
+      updatedAt: vendureProduct.updatedAt,
+    });
+  }
+
+  return variants;
 }
