@@ -93,3 +93,56 @@ export function toVendureProduct(
 
   return product;
 }
+
+export function toVendureProductOptionGroup(
+  keycrmPropertiesAgg: Record<string, string[]>,
+  vendureProduct: Product
+): Array<ProductOptionGroup> {
+  const optionGroups: Array<ProductOptionGroup> = [];
+
+  for (const property in keycrmPropertiesAgg) {
+    const options: ProductOption[] = keycrmPropertiesAgg[property].map(
+      (name) => ({
+        // TODO: fall back values to satisfy type
+        id: '',
+        createdAt: vendureProduct.createdAt,
+        updatedAt: vendureProduct.updatedAt,
+        deletedAt: null,
+        name: name as LocaleString,
+        code: '',
+        translations: [],
+        group: {
+          deletedAt: null,
+          name: property as LocaleString,
+          code: '',
+          translations: [],
+          options: [],
+          product: vendureProduct,
+          customFields: vendureProduct.customFields,
+          id: '',
+          createdAt: vendureProduct.createdAt,
+          updatedAt: vendureProduct.updatedAt,
+        },
+        groupId: 0,
+        productVariants: [],
+        customFields: vendureProduct.customFields,
+      })
+    );
+
+    optionGroups.push({
+      // TODO: fall back values to satisfy type
+      deletedAt: null,
+      name: property as LocaleString,
+      code: '',
+      translations: [],
+      options: options,
+      product: vendureProduct,
+      customFields: vendureProduct.customFields,
+      id: '',
+      createdAt: vendureProduct.createdAt,
+      updatedAt: vendureProduct.updatedAt,
+    });
+  }
+
+  return optionGroups;
+}
