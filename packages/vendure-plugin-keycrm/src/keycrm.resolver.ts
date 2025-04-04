@@ -11,6 +11,7 @@ import {
   UserInputError,
   InternalServerError,
   Asset,
+  ProductOptionGroup,
 } from '@vendure/core';
 import { KeycrmService } from './keycrm.service';
 
@@ -61,6 +62,8 @@ export class ShopProductsResolver {
 
 @Resolver('Product')
 export class ProductEntityResolver {
+  constructor(private keycrmService: KeycrmService) {}
+
   @ResolveField()
   name(@Parent() product: Product): Promise<string> {
     if (!product.keycrm) {
@@ -80,6 +83,13 @@ export class ProductEntityResolver {
     if (!product.keycrm) {
       throw new InternalServerError('error.entity-has-no-field-keycrm');
     } else return Promise.resolve(product.keycrm.description);
+  }
+
+  @ResolveField()
+  async optionGroups(
+    @Parent() product: Product
+  ): Promise<Array<ProductOptionGroup>> {
+    return await this.keycrmService.getProductOptionGroups(product);
   }
 
   @ResolveField()
