@@ -8,7 +8,11 @@ import { KEYCRM_PLUGIN_OPTIONS } from './constants';
 import { PluginInitOptions } from './types';
 import { KeycrmService } from './keycrm.service';
 import { KeycrmClient } from './keycrm.client';
-import { ShopProductsResolver, ProductEntityResolver } from './keycrm.resolver';
+import {
+  ShopProductsResolver,
+  ProductEntityResolver,
+  ProductVariantEntityResolver,
+} from './keycrm.resolver';
 
 @VendurePlugin({
   imports: [PluginCommonModule],
@@ -30,7 +34,11 @@ import { ShopProductsResolver, ProductEntityResolver } from './keycrm.resolver';
   },
   compatibility: '^3.0.0',
   shopApiExtensions: {
-    resolvers: [ShopProductsResolver, ProductEntityResolver],
+    resolvers: [
+      ShopProductsResolver,
+      ProductEntityResolver,
+      ProductVariantEntityResolver,
+    ],
   },
 })
 export class KeycrmPlugin {

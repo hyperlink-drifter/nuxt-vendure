@@ -61,6 +61,14 @@ export class ShopProductsResolver {
   }
 }
 
+@Resolver('ProductVariant')
+export class ProductVariantEntityResolver {
+  @ResolveField()
+  async price(@Parent() productVariant: ProductVariant): Promise<number> {
+    return Promise.resolve(productVariant.price);
+  }
+}
+
 @Resolver('Product')
 export class ProductEntityResolver {
   constructor(private keycrmService: KeycrmService) {}
