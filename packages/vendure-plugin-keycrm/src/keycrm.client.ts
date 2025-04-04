@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { KEYCRM_PLUGIN_OPTIONS } from './constants';
-import { PluginInitOptions } from './types';
+import { PluginInitOptions, ProductKeycrm } from './types';
 import { $Fetch, ofetch } from 'ofetch';
 
 export class KeycrmClient {
@@ -18,7 +18,7 @@ export class KeycrmClient {
     });
   }
 
-  async getProduct(product_id: string) {
+  async getProduct(product_id: string): Promise<ProductKeycrm> {
     return await this.$fetch(`products/${product_id}`);
   }
 }
