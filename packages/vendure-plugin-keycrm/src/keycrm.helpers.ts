@@ -13,9 +13,11 @@ export function toVendureProduct(
   keycrmProduct: ProductKeycrm,
   vendureProduct: Product
 ): Product &
-  Partial<ProductKeycrm> & { translations: Array<Translation<VendureEntity>> } {
+  Pick<ProductKeycrm, 'has_offers'> & {
+    translations: Array<Translation<VendureEntity>>;
+  } {
   const product: Product &
-    Partial<ProductKeycrm> & {
+    Pick<ProductKeycrm, 'has_offers'> & {
       translations: Array<Translation<VendureEntity>>;
     } = {
     id: keycrmProduct.id,

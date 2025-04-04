@@ -15,7 +15,7 @@ declare module '@vendure/core' {
     /**
      * A Keycrm Product mapped to Vendure's Product Fields
      */
-    keycrm: (Product & Partial<ProductKeycrm>) | undefined;
+    keycrm: (Product & Pick<ProductKeycrm, 'has_offers'>) | undefined;
   }
 }
 

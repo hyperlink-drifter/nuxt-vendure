@@ -26,7 +26,7 @@ export class KeycrmService {
   async getProduct(
     ctx: RequestContext,
     product: Product
-  ): Promise<Translated<Product & Partial<ProductKeycrm>>> {
+  ): Promise<Translated<Product & Pick<ProductKeycrm, 'has_offers'>>> {
     const keycrmId = product.customFields.KeycrmId;
     const keycrm = await this.keycrmClient.getProduct(keycrmId);
     const vendure = toVendureProduct(keycrm, product);
