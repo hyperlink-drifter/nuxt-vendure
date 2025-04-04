@@ -1,7 +1,14 @@
 import { Inject } from '@nestjs/common';
 import { KEYCRM_PLUGIN_OPTIONS } from './constants';
-import { PluginInitOptions, ProductKeycrm } from './types';
+import { OfferKeycrm, PluginInitOptions, ProductKeycrm } from './types';
 import { $Fetch, ofetch } from 'ofetch';
+
+type QueryOffers = {
+  sort?: 'id' | '-id';
+  limit?: number;
+  include?: 'product';
+  'filter[product_id]'?: string;
+};
 
 export class KeycrmClient {
   readonly $fetch: $Fetch;
@@ -20,5 +27,21 @@ export class KeycrmClient {
 
   async getProduct(product_id: string): Promise<ProductKeycrm> {
     return await this.$fetch(`products/${product_id}`);
+  }
+
+  async getOffers(
+    query: QueryOffers = {
+      sort: 'id',
+      limit: 15,
+    }
+  ): Promise<Array<OfferKeycrm>> {
+    const { data: offers } = await this.$fetch<{ data: Array<OfferKeycrm> }>(
+      `offers`,
+      {
+        query,
+      }
+    );
+
+    return offers;
   }
 }

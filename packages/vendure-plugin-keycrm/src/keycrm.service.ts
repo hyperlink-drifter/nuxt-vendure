@@ -44,7 +44,7 @@ export class KeycrmService {
       sort: 'id',
       include: 'product',
       limit: 1,
-      'filter[product_id]': product.keycrm.id,
+      'filter[product_id]': product.keycrm.id.toString(),
     });
 
     const offer = offers.at(0);
