@@ -1,12 +1,14 @@
 import type { LocaleString } from '@vendure/core';
 import {
   OfferKeycrm,
+  OfferStocksKeycrm,
   ProductKeycrm,
   ProductKeycrmToVendure,
   ProductOptionGroupKeycrmToVendure,
   ProductOptionPicked,
   ProductPicked,
   ProductVariantKeycrmToVendure,
+  StockLevelKeycrmToVendure,
 } from './types';
 
 export function toVendureProduct(
@@ -84,4 +86,22 @@ export function toVendureVariants(
   }
 
   return variants;
+}
+
+export function toVendureStockLevel(
+  stocks: Array<OfferStocksKeycrm>,
+  productVariant: ProductVariantKeycrmToVendure
+): Array<StockLevelKeycrmToVendure> {
+  const stockLevels: Array<StockLevelKeycrmToVendure> = stocks.map((stock) => ({
+    productVariantId: productVariant.id,
+    stockLocationId: stock.warehouse ? stock.warehouse.id : '',
+    stockOnHand: stock.quantity,
+    stockAllocated: stock.reserve,
+    productVariant: productVariant,
+    stockLocation: {
+      name: stock.warehouse ? stock.warehouse.name : '',
+    },
+  }));
+
+  return stockLevels;
 }
