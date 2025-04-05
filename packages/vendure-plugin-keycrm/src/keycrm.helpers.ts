@@ -71,60 +71,21 @@ export function toVendureProductOptionGroup(
 export function toVendureVariants(
   offers: Array<OfferKeycrm>,
   vendureProduct: ProductPicked
-): Array<ProductVariant> {
-  const variants: Array<ProductVariant> = [];
+): Array<ProductVariantKeycrmToVendure> {
+  const variants: Array<ProductVariantKeycrmToVendure> = [];
 
   for (const offer of offers) {
     variants.push({
       id: offer.id,
-      deletedAt: null,
-      name: '' as LocaleString,
-      enabled: false,
+      productId: vendureProduct.id,
       sku: offer.sku ? offer.sku : '',
       listPrice: offer.purchased_price,
-      listPriceIncludesTax: false,
-      currencyCode: CurrencyCode.UAH,
       price: offer.price,
-      priceWithTax: 0,
-      taxRateApplied: new TaxRate(),
       featuredAsset: {
         source: offer.thumbnail_url ? offer.thumbnail_url : '',
-        // TODO: fall back values to satisfy type
-        name: '',
-        type: AssetType.IMAGE,
-        mimeType: '',
-        width: 0,
-        height: 0,
-        fileSize: 0,
-        preview: '',
-        tags: [],
-        channels: [],
-        id: '',
-        createdAt: vendureProduct.createdAt,
-        updatedAt: vendureProduct.updatedAt,
-        customFields: [],
       },
-      featuredAssetId: '',
-      assets: [],
-      taxCategory: new TaxCategory(),
-      taxCategoryId: '',
-      productVariantPrices: [],
-      translations: [],
-      product: vendureProduct,
-      productId: vendureProduct.id,
-      outOfStockThreshold: 0,
-      useGlobalOutOfStockThreshold: false,
-      trackInventory: GlobalFlag.FALSE,
-      stockLevels: [],
-      stockMovements: [],
-      options: [],
-      facetValues: [],
-      customFields: vendureProduct.customFields,
-      collections: [],
-      channels: [],
-      lines: [],
-      createdAt: vendureProduct.createdAt,
-      updatedAt: vendureProduct.updatedAt,
+      // TODO:
+      // stockLevels: [],
     });
   }
 
