@@ -34,4 +34,11 @@ export class ProductVariantEntityResolver {
       'error.keycrm-plugin.product-variant.language-code.field-not-supported'
     );
   }
+
+  @ResolveField()
+  priceWithTax() {
+    throw new InternalServerError(
+      'error.keycrm-plugin.product-variant.price-with-tax.field-not-supported'
+    );
+  }
 }
