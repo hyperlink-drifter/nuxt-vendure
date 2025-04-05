@@ -1,5 +1,8 @@
 import { Parent, ResolveField, Resolver } from '@nestjs/graphql';
-import { ProductOptionGroupKeycrmToVendure } from '../types';
+import {
+  ProductOptionGroupKeycrmToVendure,
+  ProductOptionPicked,
+} from '../types';
 import { InternalServerError } from '@vendure/core';
 
 @Resolver('ProductOptionGroup')
@@ -9,6 +12,13 @@ export class ProductOptionGroupEntityResolver {
     @Parent() optionGroup: ProductOptionGroupKeycrmToVendure
   ): Promise<string> {
     return Promise.resolve(optionGroup.name);
+  }
+
+  @ResolveField()
+  options(
+    @Parent() optionGroup: ProductOptionGroupKeycrmToVendure
+  ): Promise<Array<ProductOptionPicked>> {
+    return Promise.resolve(optionGroup.options);
   }
 
   @ResolveField()
