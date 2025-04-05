@@ -68,6 +68,12 @@ export type ProductKeycrmToVendure = ProductPicked & {
   assets: Array<AssetPicked>;
 };
 
+export type ProductOptionPicked = Pick<ProductOption, 'name'>;
+export type ProductOptionGroupPicked = Pick<ProductOptionGroup, 'name'>;
+export type ProductOptionGroupKeycrmToVendure = ProductOptionGroupPicked & {
+  options: Array<ProductOptionPicked>;
+};
+
 export type ProductOfferKeycrm = ProductKeycrm & {
   properties_agg?: Record<string, string[]>;
 };
