@@ -1,18 +1,13 @@
-import { AssetType, CurrencyCode, TaxCategory, TaxRate } from '@vendure/core';
-import type {
-  LocaleString,
-  Product,
-  ProductOption,
-  ProductOptionGroup,
-  ProductVariant,
-} from '@vendure/core';
+import type { LocaleString } from '@vendure/core';
 import {
   OfferKeycrm,
   ProductKeycrm,
   ProductKeycrmToVendure,
+  ProductOptionGroupKeycrmToVendure,
+  ProductOptionPicked,
   ProductPicked,
+  ProductVariantKeycrmToVendure,
 } from './types';
-import { GlobalFlag } from '@vendure/common/lib/generated-shop-types';
 
 export function toVendureProduct(
   keycrmProduct: ProductKeycrm,
