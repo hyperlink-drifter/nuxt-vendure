@@ -94,3 +94,10 @@ export type OfferKeycrm = {
   properties: Array<{ name: string; value: string }>;
   product: ProductOfferKeycrm;
 };
+export type ProductVariantPicked = Pick<
+  ProductVariant,
+  'id' | 'productId' | 'sku' | 'listPrice' | 'price'
+>;
+export type ProductVariantKeycrmToVendure = ProductVariantPicked & {
+  featuredAsset: AssetPicked;
+};
