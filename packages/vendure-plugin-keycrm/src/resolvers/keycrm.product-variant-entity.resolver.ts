@@ -1,9 +1,12 @@
 import { Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { AssetPicked, ProductVariantKeycrmToVendure } from '../types';
 import { InternalServerError } from '@vendure/core';
+import { KeycrmService } from '../keycrm.service';
 
 @Resolver('ProductVariant')
 export class ProductVariantEntityResolver {
+  constructor(private keycrmService: KeycrmService) {}
+
   @ResolveField()
   async price(
     @Parent() productVariant: ProductVariantKeycrmToVendure
@@ -19,6 +22,13 @@ export class ProductVariantEntityResolver {
       return productVariant.featuredAsset;
     }
     return undefined;
+  }
+
+  @ResolveField()
+  async stockLevel(
+    @Parent() productVariant: ProductVariantKeycrmToVendure
+  ): Promise<number> {
+    return await this.keycrmService.getStockLevel(productVariant);
   }
 
   @ResolveField()
