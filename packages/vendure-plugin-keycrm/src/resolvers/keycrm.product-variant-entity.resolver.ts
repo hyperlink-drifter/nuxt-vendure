@@ -48,4 +48,11 @@ export class ProductVariantEntityResolver {
       'error.keycrm-plugin.product-variant.currency-code.field-not-supported'
     );
   }
+
+  @ResolveField()
+  taxRateApplied() {
+    throw new InternalServerError(
+      'error.keycrm-plugin.product-variant.tax-rate-applied.field-not-supported'
+    );
+  }
 }
