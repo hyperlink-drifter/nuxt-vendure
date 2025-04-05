@@ -29,7 +29,6 @@ export interface PluginInitOptions {
    * Private API key from your Keycrm Account
    */
   apiKey: string;
-  baseURL: string;
 }
 
 export type ProductKeycrm = {

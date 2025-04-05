@@ -17,7 +17,7 @@ export class KeycrmClient {
     @Inject(KEYCRM_PLUGIN_OPTIONS) private options: PluginInitOptions
   ) {
     this.$fetch = ofetch.create({
-      baseURL: this.options.baseURL,
+      baseURL: 'https://openapi.keycrm.app/v1/',
       headers: {
         authorization: `Bearer ${this.options.apiKey}`,
         accept: 'application/json',
