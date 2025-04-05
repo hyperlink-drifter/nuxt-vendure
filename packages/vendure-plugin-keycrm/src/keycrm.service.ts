@@ -5,12 +5,15 @@ import type {
   ProductOptionGroupKeycrmToVendure,
   ProductPicked,
   ProductVariantKeycrmToVendure,
+  ProductVariantPicked,
+  StockLevelKeycrmToVendure,
 } from './types';
 import { KeycrmClient } from './keycrm.client';
 import {
   toVendureProductOptionGroup,
   toVendureProduct,
   toVendureVariants,
+  toVendureStockLevel,
 } from './keycrm.helpers';
 
 @Injectable()
@@ -75,5 +78,25 @@ export class KeycrmService {
       console.error({ e });
       return Promise.resolve([]);
     }
+  }
+
+  async getStockLevel(variant: ProductVariantKeycrmToVendure): Promise<number> {
+    const stocks = await this.keycrmClient.getStocks({
+      limit: 50,
+      'filter[offers_id]': variant.id.toString(),
+      'filter[details]': false,
+    });
+
+    const stockLevels = toVendureStockLevel(stocks, variant);
+
+    const stockLevel = stockLevels.at(0);
+
+    if (!stockLevel) {
+      throw new InternalServerError(
+        'error.keycrm-plugin.offer.has-no-stock-level'
+      );
+    }
+
+    return stockLevel.stockOnHand;
   }
 }
