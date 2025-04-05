@@ -55,4 +55,11 @@ export class ProductVariantEntityResolver {
       'error.keycrm-plugin.product-variant.tax-rate-applied.field-not-supported'
     );
   }
+
+  @ResolveField()
+  product() {
+    throw new InternalServerError(
+      'error.keycrm-plugin.product-variant.product.field-not-supported'
+    );
+  }
 }
