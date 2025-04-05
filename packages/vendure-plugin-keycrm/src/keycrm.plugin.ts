@@ -11,6 +11,7 @@ import { KeycrmClient } from './keycrm.client';
 import { ShopProductsResolver } from './resolvers/keycrm.shop-products.resolver';
 import { ProductEntityResolver } from './resolvers/keycrm.product-entity.resolver';
 import { ProductVariantEntityResolver } from './resolvers/keycrm.product-variant-entity.resolver';
+import { ProductOptionGroupEntityResolver } from './resolvers/keycrm.product-option-group-entity.resolver';
 
 @VendurePlugin({
   imports: [PluginCommonModule],
@@ -36,6 +37,7 @@ import { ProductVariantEntityResolver } from './resolvers/keycrm.product-variant
       ShopProductsResolver,
       ProductEntityResolver,
       ProductVariantEntityResolver,
+      ProductOptionGroupEntityResolver,
     ],
   },
 })
