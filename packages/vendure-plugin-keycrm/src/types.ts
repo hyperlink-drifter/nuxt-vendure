@@ -89,6 +89,7 @@ export type WarehouseKeycrm = {
   quantity: number;
   reserve: number;
 };
+
 export type OfferStocksKeycrm = {
   id: number;
   sku: string;
@@ -97,6 +98,7 @@ export type OfferStocksKeycrm = {
   quantity: number;
   reserve: number;
 };
+
 export type OfferKeycrm = {
   id: number;
   product_id: number;
@@ -130,6 +132,7 @@ export type ProductVariantPicked = Pick<
   ProductVariant,
   'id' | 'productId' | 'sku' | 'listPrice' | 'price'
 >;
+
 export type ProductVariantKeycrmToVendure = ProductVariantPicked & {
   featuredAsset: AssetPicked;
   stockLevels: Array<StockLevelKeycrmToVendure>;
