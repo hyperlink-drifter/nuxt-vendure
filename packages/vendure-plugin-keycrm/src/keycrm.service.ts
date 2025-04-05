@@ -1,15 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
-import {
-  Product,
-  InternalServerError,
-  ProductOptionGroup,
-  ProductVariant,
-} from '@vendure/core';
-import { KEYCRM_PLUGIN_OPTIONS } from './constants';
-import {
-  PluginInitOptions,
+import { Injectable } from '@nestjs/common';
+import { InternalServerError } from '@vendure/core';
+import type {
   ProductKeycrmToVendure,
+  ProductOptionGroupKeycrmToVendure,
   ProductPicked,
+  ProductVariantKeycrmToVendure,
 } from './types';
 import { KeycrmClient } from './keycrm.client';
 import {
@@ -34,7 +29,7 @@ export class KeycrmService {
 
   async getProductOptionGroups(
     product: ProductPicked
-  ): Promise<Array<ProductOptionGroup>> {
+  ): Promise<Array<ProductOptionGroupKeycrmToVendure>> {
     if (!product.keycrm) {
       throw new InternalServerError('error.product.has-no-property-keycrm');
     }

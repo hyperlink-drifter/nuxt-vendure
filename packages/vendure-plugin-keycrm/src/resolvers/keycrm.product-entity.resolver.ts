@@ -1,12 +1,12 @@
 import { Parent, ResolveField, Resolver } from '@nestjs/graphql';
-import {
-  Product,
-  InternalServerError,
-  ProductOptionGroup,
-  ProductVariant,
-} from '@vendure/core';
+import { InternalServerError } from '@vendure/core';
 import { KeycrmService } from './../keycrm.service';
-import { AssetPicked, ProductPicked } from '../types';
+import {
+  AssetPicked,
+  ProductOptionGroupKeycrmToVendure,
+  ProductPicked,
+  ProductVariantKeycrmToVendure,
+} from '../types';
 
 @Resolver('Product')
 export class ProductEntityResolver {
@@ -43,7 +43,7 @@ export class ProductEntityResolver {
   @ResolveField()
   async optionGroups(
     @Parent() product: ProductPicked
-  ): Promise<Array<ProductOptionGroup>> {
+  ): Promise<Array<ProductOptionGroupKeycrmToVendure>> {
     return await this.keycrmService.getProductOptionGroups(product);
   }
 
