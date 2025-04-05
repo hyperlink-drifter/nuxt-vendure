@@ -15,4 +15,11 @@ export class ProductOptionEntityResolver {
       'error.keycrm-plugin.product-option.language-code.field-not-supported'
     );
   }
+
+  @ResolveField()
+  group() {
+    throw new InternalServerError(
+      'error.keycrm-plugin.product-option.group.field-not-supported'
+    );
+  }
 }
