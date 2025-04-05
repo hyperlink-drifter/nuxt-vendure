@@ -15,10 +15,7 @@ import {
 
 @Injectable()
 export class KeycrmService {
-  constructor(
-    @Inject(KEYCRM_PLUGIN_OPTIONS) private options: PluginInitOptions,
-    private keycrmClient: KeycrmClient
-  ) {}
+  constructor(private keycrmClient: KeycrmClient) {}
 
   async getProduct(product: ProductPicked): Promise<ProductKeycrmToVendure> {
     const keycrmId = product.customFields.KeycrmId;
