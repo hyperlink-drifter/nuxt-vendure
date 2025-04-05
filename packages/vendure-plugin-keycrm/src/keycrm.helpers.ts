@@ -5,27 +5,23 @@ import type {
   ProductOption,
   ProductOptionGroup,
   ProductVariant,
-  Translation,
-  VendureEntity,
 } from '@vendure/core';
-import { OfferKeycrm, ProductKeycrm } from './types';
+import {
+  OfferKeycrm,
+  ProductKeycrm,
+  ProductKeycrmToVendure,
+  ProductPicked,
+} from './types';
 import { GlobalFlag } from '@vendure/common/lib/generated-shop-types';
 
 export function toVendureProduct(
   keycrmProduct: ProductKeycrm,
-  vendureProduct: Product
-): Product &
-  Pick<ProductKeycrm, 'has_offers'> & {
-    translations: Array<Translation<VendureEntity>>;
-  } {
-  const product: Product &
-    Pick<ProductKeycrm, 'has_offers'> & {
-      translations: Array<Translation<VendureEntity>>;
-    } = {
+  vendureProduct: ProductPicked
+): ProductKeycrmToVendure {
+  const product: ProductKeycrmToVendure = {
     id: keycrmProduct.id,
     createdAt: keycrmProduct.created_at,
     updatedAt: keycrmProduct.updated_at,
-    deletedAt: null,
     name: keycrmProduct.name as LocaleString,
     slug: vendureProduct.slug,
     description: keycrmProduct.description
@@ -34,65 +30,18 @@ export function toVendureProduct(
       ? vendureProduct.description
       : ('' as LocaleString),
     enabled: !keycrmProduct.is_archived,
-    featuredAssetId: 0,
     featuredAsset: {
       source: keycrmProduct.thumbnail_url ? keycrmProduct.thumbnail_url : '',
-      // TODO: fall back values to satisfy type
-      name: '',
-      type: AssetType.IMAGE,
-      mimeType: '',
-      width: 0,
-      height: 0,
-      fileSize: 0,
-      preview: '',
-      tags: [],
-      channels: [],
-      id: '',
-      createdAt: keycrmProduct.created_at,
-      updatedAt: keycrmProduct.created_at,
-      customFields: [],
     },
     assets: [
       ...keycrmProduct.attachments_data.map((url) => ({
         source: url,
-        // TODO: fall back values to satisfy type
-        productId: keycrmProduct.id,
-        product: vendureProduct,
-        assetId: 0,
-        createdAt: keycrmProduct.created_at,
-        updatedAt: keycrmProduct.updated_at,
-        id: 0,
-        asset: {
-          source: url ? url : '',
-          // TODO: fall back values to satisfy type
-          name: '',
-          type: AssetType.IMAGE,
-          mimeType: '',
-          width: 0,
-          height: 0,
-          fileSize: 0,
-          preview: '',
-          tags: [],
-          channels: [],
-          id: '',
-          createdAt: keycrmProduct.created_at,
-          updatedAt: keycrmProduct.created_at,
-          customFields: [],
-        },
-        position: 0,
       })),
     ],
-    translations: [],
-    variants: [],
-    optionGroups: [],
-    facetValues: [],
-    channels: [],
     customFields: {
       KeycrmId: vendureProduct.customFields.KeycrmId,
     },
     keycrm: undefined,
-    // fields specific to keycrm product
-    has_offers: keycrmProduct.has_offers,
   };
 
   return product;

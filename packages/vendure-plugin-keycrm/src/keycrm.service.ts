@@ -1,15 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  RequestContext,
   Product,
-  Translated,
-  TranslatorService,
   InternalServerError,
   ProductOptionGroup,
   ProductVariant,
 } from '@vendure/core';
 import { KEYCRM_PLUGIN_OPTIONS } from './constants';
-import { PluginInitOptions, ProductKeycrm } from './types';
+import {
+  PluginInitOptions,
+  ProductKeycrmToVendure,
+  ProductPicked,
+} from './types';
 import { KeycrmClient } from './keycrm.client';
 import {
   toVendureProductOptionGroup,
@@ -21,18 +22,14 @@ import {
 export class KeycrmService {
   constructor(
     @Inject(KEYCRM_PLUGIN_OPTIONS) private options: PluginInitOptions,
-    private keycrmClient: KeycrmClient,
-    private translator: TranslatorService
+    private keycrmClient: KeycrmClient
   ) {}
 
-  async getProduct(
-    ctx: RequestContext,
-    product: Product
-  ): Promise<Translated<Product & Pick<ProductKeycrm, 'has_offers'>>> {
+  async getProduct(product: ProductPicked): Promise<ProductKeycrmToVendure> {
     const keycrmId = product.customFields.KeycrmId;
-    const keycrm = await this.keycrmClient.getProduct(keycrmId);
-    const vendure = toVendureProduct(keycrm, product);
-    return this.translator.translate(vendure, ctx);
+    const keycrmProduct = await this.keycrmClient.getProduct(keycrmId);
+    const vendureProduct = toVendureProduct(keycrmProduct, product);
+    return vendureProduct;
   }
 
   async getProductOptionGroups(

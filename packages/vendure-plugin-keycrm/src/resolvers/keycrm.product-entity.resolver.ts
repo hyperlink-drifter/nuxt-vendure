@@ -2,11 +2,11 @@ import { Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import {
   Product,
   InternalServerError,
-  Asset,
   ProductOptionGroup,
   ProductVariant,
 } from '@vendure/core';
 import { KeycrmService } from './../keycrm.service';
+import { AssetPicked } from '../types';
 
 @Resolver('Product')
 export class ProductEntityResolver {
@@ -46,18 +46,18 @@ export class ProductEntityResolver {
   }
 
   @ResolveField()
-  featuredAsset(@Parent() product: Product): Promise<Asset | undefined> {
+  featuredAsset(@Parent() product: Product): Promise<AssetPicked | undefined> {
     if (!product.keycrm) {
       throw new InternalServerError('error.entity-has-no-field-keycrm');
     } else return Promise.resolve(product.keycrm.featuredAsset);
   }
 
   @ResolveField()
-  async assets(@Parent() product: Product): Promise<Asset[] | undefined> {
+  async assets(@Parent() product: Product): Promise<AssetPicked[] | undefined> {
     if (!product.keycrm) {
       throw new InternalServerError('error.entity-has-no-field-keycrm');
     } else {
-      return Promise.resolve(product.keycrm.assets.map(({ asset }) => asset));
+      return Promise.resolve(product.keycrm.assets.map((asset) => asset));
     }
   }
 }
