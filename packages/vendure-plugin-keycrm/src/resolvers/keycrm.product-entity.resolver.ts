@@ -6,54 +6,60 @@ import {
   ProductVariant,
 } from '@vendure/core';
 import { KeycrmService } from './../keycrm.service';
-import { AssetPicked } from '../types';
+import { AssetPicked, ProductPicked } from '../types';
 
 @Resolver('Product')
 export class ProductEntityResolver {
   constructor(private keycrmService: KeycrmService) {}
 
   @ResolveField()
-  name(@Parent() product: Product): Promise<string> {
+  name(@Parent() product: ProductPicked): Promise<string> {
     if (!product.keycrm) {
       throw new InternalServerError('error.entity-has-no-field-keycrm');
     } else return Promise.resolve(product.keycrm.name);
   }
 
   @ResolveField()
-  slug(@Parent() product: Product): Promise<string> {
+  slug(@Parent() product: ProductPicked): Promise<string> {
     if (!product.keycrm) {
       throw new InternalServerError('error.entity-has-no-field-keycrm');
     } else return Promise.resolve(product.keycrm.slug);
   }
 
   @ResolveField()
-  description(@Parent() product: Product): Promise<string> {
+  description(@Parent() product: ProductPicked): Promise<string> {
     if (!product.keycrm) {
       throw new InternalServerError('error.entity-has-no-field-keycrm');
     } else return Promise.resolve(product.keycrm.description);
   }
 
   @ResolveField()
-  async variants(@Parent() product: Product): Promise<Array<ProductVariant>> {
+  async variants(
+    @Parent() product: ProductPicked
+  ): Promise<Array<ProductVariant>> {
     return await this.keycrmService.getVariants(product);
   }
 
   @ResolveField()
   async optionGroups(
-    @Parent() product: Product
+    @Parent() product: ProductPicked
   ): Promise<Array<ProductOptionGroup>> {
     return await this.keycrmService.getProductOptionGroups(product);
   }
 
   @ResolveField()
-  featuredAsset(@Parent() product: Product): Promise<AssetPicked | undefined> {
+  featuredAsset(
+    @Parent() product: ProductPicked
+  ): Promise<AssetPicked | undefined> {
     if (!product.keycrm) {
       throw new InternalServerError('error.entity-has-no-field-keycrm');
     } else return Promise.resolve(product.keycrm.featuredAsset);
   }
 
   @ResolveField()
-  async assets(@Parent() product: Product): Promise<AssetPicked[] | undefined> {
+  async assets(
+    @Parent() product: ProductPicked
+  ): Promise<AssetPicked[] | undefined> {
     if (!product.keycrm) {
       throw new InternalServerError('error.entity-has-no-field-keycrm');
     } else {

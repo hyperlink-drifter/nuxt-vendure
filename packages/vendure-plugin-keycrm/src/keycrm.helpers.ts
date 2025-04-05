@@ -49,7 +49,7 @@ export function toVendureProduct(
 
 export function toVendureProductOptionGroup(
   keycrmPropertiesAgg: Record<string, string[]>,
-  vendureProduct: Product
+  vendureProduct: ProductPicked
 ): Array<ProductOptionGroup> {
   const optionGroups: Array<ProductOptionGroup> = [];
 
@@ -102,7 +102,7 @@ export function toVendureProductOptionGroup(
 
 export function toVendureVariants(
   offers: Array<OfferKeycrm>,
-  vendureProduct: Product
+  vendureProduct: ProductPicked
 ): Array<ProductVariant> {
   const variants: Array<ProductVariant> = [];
 

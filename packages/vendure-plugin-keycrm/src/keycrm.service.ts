@@ -33,7 +33,7 @@ export class KeycrmService {
   }
 
   async getProductOptionGroups(
-    product: Product
+    product: ProductPicked
   ): Promise<Array<ProductOptionGroup>> {
     if (!product.keycrm) {
       throw new InternalServerError('error.product.has-no-property-keycrm');
@@ -62,7 +62,7 @@ export class KeycrmService {
     return Promise.resolve(optionGroups);
   }
 
-  async getVariants(product: Product): Promise<Array<ProductVariant>> {
+  async getVariants(product: ProductPicked): Promise<Array<ProductVariant>> {
     if (!product.keycrm) {
       throw new InternalServerError('error.product.has-no-property-keycrm');
     }
