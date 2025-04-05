@@ -74,7 +74,13 @@ export type ProductKeycrmToVendure = ProductPicked & {
 };
 
 export type ProductOptionPicked = Pick<ProductOption, 'name'>;
+
+export type ProductOptionKeycrmToVendure = ProductOptionPicked & {
+  group: ProductOptionGroupPicked;
+};
+
 export type ProductOptionGroupPicked = Pick<ProductOptionGroup, 'name'>;
+
 export type ProductOptionGroupKeycrmToVendure = ProductOptionGroupPicked & {
   options: Array<ProductOptionPicked>;
 };
@@ -137,4 +143,5 @@ export type ProductVariantPicked = Pick<
 export type ProductVariantKeycrmToVendure = ProductVariantPicked & {
   featuredAsset: AssetPicked;
   stockLevels: Array<StockLevelKeycrmToVendure>;
+  options: Array<ProductOptionKeycrmToVendure>;
 };
