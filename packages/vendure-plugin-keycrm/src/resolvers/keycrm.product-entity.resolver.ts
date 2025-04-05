@@ -36,7 +36,7 @@ export class ProductEntityResolver {
   @ResolveField()
   async variants(
     @Parent() product: ProductPicked
-  ): Promise<Array<ProductVariant>> {
+  ): Promise<Array<ProductVariantKeycrmToVendure>> {
     return await this.keycrmService.getVariants(product);
   }
 

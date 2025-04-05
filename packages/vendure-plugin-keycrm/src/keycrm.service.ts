@@ -54,7 +54,9 @@ export class KeycrmService {
     return Promise.resolve(optionGroups);
   }
 
-  async getVariants(product: ProductPicked): Promise<Array<ProductVariant>> {
+  async getVariants(
+    product: ProductPicked
+  ): Promise<Array<ProductVariantKeycrmToVendure>> {
     if (!product.keycrm) {
       throw new InternalServerError('error.product.has-no-property-keycrm');
     }
