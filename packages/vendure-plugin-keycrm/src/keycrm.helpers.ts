@@ -82,6 +82,12 @@ export function toVendureVariants(
         source: offer.thumbnail_url ? offer.thumbnail_url : '',
       },
       stockLevels: [],
+      options: [
+        ...offer.properties.map(({ name, value }) => ({
+          name: value as LocaleString,
+          group: { name: name as LocaleString },
+        })),
+      ],
     });
   }
 
