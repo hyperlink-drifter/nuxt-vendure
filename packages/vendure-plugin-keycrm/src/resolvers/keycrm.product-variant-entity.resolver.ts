@@ -62,4 +62,11 @@ export class ProductVariantEntityResolver {
       'error.keycrm-plugin.product-variant.product.field-not-supported'
     );
   }
+
+  @ResolveField()
+  assets() {
+    throw new InternalServerError(
+      'error.keycrm-plugin.product-variant.assets.field-not-supported'
+    );
+  }
 }
