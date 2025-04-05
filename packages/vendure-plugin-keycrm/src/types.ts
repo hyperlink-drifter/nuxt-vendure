@@ -9,6 +9,8 @@ import {
   ProductOption,
   ProductOptionGroup,
   ProductVariant,
+  StockLevel,
+  StockLocation,
 } from '@vendure/core';
 import { CustomProductFields } from '@vendure/core/dist/entity/custom-entity-fields';
 declare module '@vendure/core/dist/entity/custom-entity-fields' {
@@ -111,10 +113,24 @@ export type OfferKeycrm = {
   properties: Array<{ name: string; value: string }>;
   product: ProductOfferKeycrm;
 };
+
+export type StockLevelPicked = Pick<
+  StockLevel,
+  'productVariantId' | 'stockLocationId' | 'stockOnHand' | 'stockAllocated'
+>;
+
+export type StockLocationPicked = Pick<StockLocation, 'name'>;
+
+export type StockLevelKeycrmToVendure = StockLevelPicked & {
+  productVariant: ProductVariantPicked;
+  stockLocation: StockLocationPicked;
+};
+
 export type ProductVariantPicked = Pick<
   ProductVariant,
   'id' | 'productId' | 'sku' | 'listPrice' | 'price'
 >;
 export type ProductVariantKeycrmToVendure = ProductVariantPicked & {
   featuredAsset: AssetPicked;
+  stockLevels: Array<StockLevelKeycrmToVendure>;
 };

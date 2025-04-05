@@ -79,8 +79,7 @@ export function toVendureVariants(
       featuredAsset: {
         source: offer.thumbnail_url ? offer.thumbnail_url : '',
       },
-      // TODO:
-      // stockLevels: [],
+      stockLevels: [],
     });
   }
 
