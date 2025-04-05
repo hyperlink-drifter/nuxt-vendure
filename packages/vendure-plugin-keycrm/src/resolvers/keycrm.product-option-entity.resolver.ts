@@ -10,16 +10,16 @@ export class ProductOptionEntityResolver {
   }
 
   @ResolveField()
-  languageCode() {
-    throw new InternalServerError(
-      'error.keycrm-plugin.product-option.language-code.field-not-supported'
-    );
+  group(
+    @Parent() productOption: ProductOptionKeycrmToVendure
+  ): Promise<ProductOptionGroupPicked> {
+    return Promise.resolve(productOption.group);
   }
 
   @ResolveField()
-  group() {
+  languageCode() {
     throw new InternalServerError(
-      'error.keycrm-plugin.product-option.group.field-not-supported'
+      'error.keycrm-plugin.product-option.language-code.field-not-supported'
     );
   }
 }
