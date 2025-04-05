@@ -57,7 +57,7 @@ export class KeycrmService {
       return Promise.resolve([]);
     }
 
-    const optionGroups = toVendureProductOptionGroup(properties_agg, product);
+    const optionGroups = toVendureProductOptionGroup(properties_agg);
 
     return Promise.resolve(optionGroups);
   }
