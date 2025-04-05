@@ -81,6 +81,12 @@ export type ProductOfferKeycrm = ProductKeycrm & {
   properties_agg?: Record<string, string[]>;
 };
 
+export type WarehouseKeycrm = {
+  id: number;
+  name: string;
+  quantity: number;
+  reserve: number;
+};
 export type OfferStocksKeycrm = {
   id: number;
   sku: string;
