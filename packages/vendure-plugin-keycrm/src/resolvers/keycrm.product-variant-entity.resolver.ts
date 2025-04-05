@@ -1,5 +1,6 @@
 import { Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { AssetPicked, ProductVariantKeycrmToVendure } from '../types';
+import { InternalServerError } from '@vendure/core';
 
 @Resolver('ProductVariant')
 export class ProductVariantEntityResolver {
@@ -18,5 +19,12 @@ export class ProductVariantEntityResolver {
       return productVariant.featuredAsset;
     }
     return undefined;
+  }
+
+  @ResolveField()
+  name() {
+    throw new InternalServerError(
+      'error.keycrm-plugin.product-variant.name.field-not-supported'
+    );
   }
 }
