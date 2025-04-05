@@ -97,6 +97,7 @@ export type OfferStocksKeycrm = {
   purchased_price: number;
   quantity: number;
   reserve: number;
+  warehouse?: WarehouseKeycrm;
 };
 
 export type OfferKeycrm = {
@@ -124,7 +125,7 @@ export type StockLevelPicked = Pick<
 export type StockLocationPicked = Pick<StockLocation, 'name'>;
 
 export type StockLevelKeycrmToVendure = StockLevelPicked & {
-  productVariant: ProductVariantPicked;
+  productVariant: ProductVariantKeycrmToVendure;
   stockLocation: StockLocationPicked;
 };
 
