@@ -66,4 +66,11 @@ export class ProductEntityResolver {
       return Promise.resolve(product.keycrm.assets.map((asset) => asset));
     }
   }
+
+  @ResolveField()
+  languageCode() {
+    throw new InternalServerError(
+      'error.keycrm-plugin.product.language-code.field-not-supported'
+    );
+  }
 }
