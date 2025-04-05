@@ -73,4 +73,11 @@ export class ProductEntityResolver {
       'error.keycrm-plugin.product.language-code.field-not-supported'
     );
   }
+
+  @ResolveField()
+  variantList() {
+    throw new InternalServerError(
+      'error.keycrm-plugin.product.variant-list.field-not-supported'
+    );
+  }
 }
