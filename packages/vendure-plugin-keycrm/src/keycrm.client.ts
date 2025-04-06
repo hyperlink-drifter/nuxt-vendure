@@ -12,6 +12,7 @@ type QueryOffers = {
   sort?: 'id' | '-id';
   limit?: number;
   include?: 'product';
+  'filter[id]'?: string;
   'filter[product_id]'?: string;
 };
 
