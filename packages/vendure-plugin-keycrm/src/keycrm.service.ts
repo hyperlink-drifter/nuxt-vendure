@@ -84,7 +84,6 @@ export class KeycrmService {
     const stocks = await this.keycrmClient.getStocks({
       limit: 50,
       'filter[offers_id]': variant.id.toString(),
-      'filter[details]': false,
     });
 
     const stockLevels = toVendureStockLevel(stocks, variant);

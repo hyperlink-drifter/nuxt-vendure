@@ -19,7 +19,7 @@ type QueryStocks = {
   limit?: number;
   page?: number;
   'filter[offers_id]'?: string;
-  'filter[details]': boolean;
+  'filter[details]'?: boolean;
 };
 
 export class KeycrmClient {
