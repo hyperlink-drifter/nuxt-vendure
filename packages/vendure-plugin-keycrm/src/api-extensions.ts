@@ -27,5 +27,6 @@ export const shopApiExtensions: DocumentNode = gql`
 
   extend type Query {
     keycrmProduct(id: ID): KeycrmProduct
+    keycrmProductOffer(id: ID): KeycrmProductOffer
   }
 `;
