@@ -14,6 +14,7 @@ type QueryOffers = {
   include?: 'product';
   'filter[id]'?: string;
   'filter[product_id]'?: string;
+  'filter[sku]'?: string;
 };
 
 type QueryStocks = {
