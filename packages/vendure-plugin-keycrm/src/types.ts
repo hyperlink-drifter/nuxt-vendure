@@ -87,6 +87,7 @@ export type ProductOptionGroupKeycrmToVendure = ProductOptionGroupPicked & {
 
 export type ProductOfferKeycrm = ProductKeycrm & {
   properties_agg?: Record<string, string[]>;
+  offers: Array<OfferKeycrm>;
 };
 
 export type WarehouseKeycrm = {
