@@ -2,6 +2,21 @@ import gql from 'graphql-tag';
 import { DocumentNode } from 'graphql';
 
 export const shopApiExtensions: DocumentNode = gql`
+  type KeycrmOffer {
+    id: ID!
+    product_id: ID!
+    sku: String
+    barcode: String
+    thumbnail_url: String
+    price: Float
+    quantity: Int
+    weight: Float
+    length: Float
+    width: Float
+    height: Float
+    properties: [KeycrmOfferProperty]
+  }
+
   type KeycrmProductOffer implements Node {
     id: ID!
     name: String!
