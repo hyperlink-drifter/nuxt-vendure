@@ -15,6 +15,7 @@ type QueryOffers = {
   'filter[id]'?: string;
   'filter[product_id]'?: string;
   'filter[sku]'?: string;
+  'filter[is_archived]'?: boolean;
 };
 
 type QueryStocks = {
