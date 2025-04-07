@@ -1,7 +1,12 @@
 import { Args, Query, Resolver } from '@nestjs/graphql';
 import { Scalars } from '@vendure/core';
 import { KeycrmClient } from '../keycrm.client';
-import { ProductKeycrm, ProductListKeycrm, ProductOfferKeycrm } from '../types';
+import {
+  CategoryListKeycrm,
+  ProductKeycrm,
+  ProductListKeycrm,
+  ProductOfferKeycrm,
+} from '../types';
 
 type QueryKeycrmProductArgs = {
   id: Scalars['ID'];
@@ -15,6 +20,17 @@ type QueryKeycrmProductsArgs = {
       product_id?: Scalars['String'];
       category_id?: Scalars['String'];
       is_archived?: Scalars['Boolean'];
+    };
+  };
+};
+
+type QueryKeycrmCategoriesArgs = {
+  options: {
+    limit?: Scalars['Int'];
+    page?: Scalars['Int'];
+    filter?: {
+      category_id?: Scalars['String'];
+      parent_id?: Scalars['String'];
     };
   };
 };
@@ -60,5 +76,21 @@ export class ShopKeycrmProductResolver {
     const productOffer = offer!.product;
     productOffer.offers = keycrmOffers;
     return productOffer;
+  }
+
+  @Query()
+  async keycrmCategories(
+    @Args() args: QueryKeycrmCategoriesArgs
+  ): Promise<CategoryListKeycrm> {
+    const { options } = args;
+    const { limit, page, filter } = options ?? {};
+    const { category_id, parent_id } = filter ?? {};
+    const keycrmCategoryList = await this.keycrmClient.getCategories({
+      ...(limit && { limit }),
+      ...(page && { page }),
+      ...(category_id && { 'filter[category_id]': category_id }),
+      ...(parent_id && { 'filter[is_archived]': parent_id }),
+    });
+    return keycrmCategoryList;
   }
 }
