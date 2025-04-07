@@ -30,6 +30,13 @@ export const shopApiExtensions: DocumentNode = gql`
     filter: KeycrmProductListOptionsFilterParameter
   }
 
+  type KeycrmCategoryList {
+    total: Int!
+    current_page: Int!
+    per_page: Int!
+    data: [KeycrmCategory!]!
+  }
+
   input KeycrmCategoryListOptionsFilterParameter {
     category_id: String
     parent_id: String
