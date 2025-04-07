@@ -39,6 +39,12 @@ export interface PluginInitOptions {
   apiKey: string;
 }
 
+export type CategoryKeycrm = {
+  id: number;
+  name: string;
+  parent_id: number | null;
+};
+
 export type ProductListKeycrm = {
   total: number;
   current_page: number;
