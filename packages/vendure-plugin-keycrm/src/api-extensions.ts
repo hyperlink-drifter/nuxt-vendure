@@ -107,5 +107,6 @@ export const shopApiExtensions: DocumentNode = gql`
     keycrmProducts(options: KeycrmProductListOptions): KeycrmProductList
     keycrmProduct(id: ID!): KeycrmProduct
     keycrmProductOffer(id: ID!): KeycrmProductOffer
+    keycrmCategories(options: KeycrmCategoryListOptions): KeycrmCategoryList
   }
 `;
