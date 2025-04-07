@@ -2,34 +2,6 @@ import gql from 'graphql-tag';
 import { DocumentNode } from 'graphql';
 
 export const shopApiExtensions: DocumentNode = gql`
-  type KeycrmProductList {
-    total: Int!
-    current_page: Int!
-    per_page: Int!
-    data: [KeycrmProduct!]!
-  }
-
-  input KeycrmProductListOptionsFilterParameter {
-    product_id: String
-    category_id: String
-    is_archived: Boolean
-  }
-
-  input KeycrmProductListOptions {
-    """
-    Maximum number of items in a paginated list. Maximum 50.
-    """
-    limit: Int
-    """
-    Specify the page
-    """
-    page: Int
-    """
-    Allows the results to be filtered
-    """
-    filter: KeycrmProductListOptionsFilterParameter
-  }
-
   type KeycrmCategory {
     id: ID
     name: String
@@ -61,6 +33,34 @@ export const shopApiExtensions: DocumentNode = gql`
     Allows the results to be filtered
     """
     filter: KeycrmCategoryListOptionsFilterParameter
+  }
+
+  type KeycrmProductList {
+    total: Int!
+    current_page: Int!
+    per_page: Int!
+    data: [KeycrmProduct!]!
+  }
+
+  input KeycrmProductListOptionsFilterParameter {
+    product_id: String
+    category_id: String
+    is_archived: Boolean
+  }
+
+  input KeycrmProductListOptions {
+    """
+    Maximum number of items in a paginated list. Maximum 50.
+    """
+    limit: Int
+    """
+    Specify the page
+    """
+    page: Int
+    """
+    Allows the results to be filtered
+    """
+    filter: KeycrmProductListOptionsFilterParameter
   }
 
   type KeycrmOfferPropertyAgg {
