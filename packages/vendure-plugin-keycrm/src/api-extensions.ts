@@ -2,6 +2,21 @@ import gql from 'graphql-tag';
 import { DocumentNode } from 'graphql';
 
 export const shopApiExtensions: DocumentNode = gql`
+  input KeycrmProductListOptions {
+    """
+    Maximum number of items in a paginated list. Maximum 50.
+    """
+    limit: Int
+    """
+    Specify the page
+    """
+    page: Int
+    """
+    Allows the results to be filtered
+    """
+    filter: KeycrmProductsFilterParameter
+  }
+
   type KeycrmOfferPropertyAgg {
     name: String
     values: [String]
