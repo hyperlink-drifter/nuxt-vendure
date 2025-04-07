@@ -3,6 +3,7 @@ import { InternalServerError } from '@vendure/core';
 import { KeycrmService } from './../keycrm.service';
 import {
   AssetPicked,
+  ProductKeycrm,
   ProductOptionGroupKeycrmToVendure,
   ProductPicked,
   ProductVariantKeycrmToVendure,
@@ -79,5 +80,18 @@ export class ProductEntityResolver {
     throw new InternalServerError(
       'error.keycrm-plugin.product.variant-list.field-not-supported'
     );
+  }
+}
+
+@Resolver('KeycrmProduct')
+export class KeycrmProductEntityResolver {
+  @ResolveField()
+  id(@Parent() product: ProductKeycrm): Promise<number> {
+    return Promise.resolve(product.id);
+  }
+
+  @ResolveField()
+  name(@Parent() product: ProductKeycrm): Promise<string> {
+    return Promise.resolve(product.name);
   }
 }

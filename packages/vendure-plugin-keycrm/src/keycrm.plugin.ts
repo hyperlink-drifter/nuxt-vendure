@@ -9,7 +9,10 @@ import { PluginInitOptions } from './types';
 import { KeycrmService } from './keycrm.service';
 import { KeycrmClient } from './keycrm.client';
 import { ShopProductsResolver } from './resolvers/keycrm.shop-products.resolver';
-import { ProductEntityResolver } from './resolvers/keycrm.product-entity.resolver';
+import {
+  KeycrmProductEntityResolver,
+  ProductEntityResolver,
+} from './resolvers/keycrm.product-entity.resolver';
 import { ProductVariantEntityResolver } from './resolvers/keycrm.product-variant-entity.resolver';
 import { ProductOptionGroupEntityResolver } from './resolvers/keycrm.product-option-group-entity.resolver';
 import { ProductOptionEntityResolver } from './resolvers/keycrm.product-option-entity.resolver';
@@ -45,6 +48,7 @@ import { ShopKeycrmProductResolver } from './resolvers/keycrm.products.resolver'
       ProductOptionGroupEntityResolver,
       ProductOptionEntityResolver,
       KeycrmProductOfferEntityResolver,
+      KeycrmProductEntityResolver,
       ShopKeycrmProductResolver,
     ],
   },
