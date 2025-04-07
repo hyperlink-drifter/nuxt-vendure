@@ -27,7 +27,7 @@ export const shopApiExtensions: DocumentNode = gql`
     """
     Allows the results to be filtered
     """
-    filter: KeycrmProductsFilterParameter
+    filter: KeycrmProductListOptionsFilterParameter
   }
 
   type KeycrmOfferPropertyAgg {
