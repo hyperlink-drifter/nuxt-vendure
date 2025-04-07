@@ -56,7 +56,7 @@ export type ProductListKeycrm = {
   total: number;
   current_page: number;
   per_page: number;
-  items: Array<ProductKeycrm>;
+  data: Array<ProductKeycrm>;
 };
 
 export type ProductKeycrm = {
