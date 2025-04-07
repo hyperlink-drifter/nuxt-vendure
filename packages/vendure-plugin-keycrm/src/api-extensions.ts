@@ -30,6 +30,11 @@ export const shopApiExtensions: DocumentNode = gql`
     filter: KeycrmProductListOptionsFilterParameter
   }
 
+  input KeycrmCategoryListOptionsFilterParameter {
+    category_id: String
+    parent_id: String
+  }
+
   input KeycrmCategoryListOptions {
     """
     Maximum number of items in a paginated list. Maximum 50.
