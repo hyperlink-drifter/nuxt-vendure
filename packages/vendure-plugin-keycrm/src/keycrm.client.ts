@@ -5,8 +5,17 @@ import {
   OfferStocksKeycrm,
   PluginInitOptions,
   ProductKeycrm,
+  ProductListKeycrm,
 } from './types';
 import { $Fetch, ofetch } from 'ofetch';
+
+type QueryProducts = {
+  limit?: number;
+  page?: number;
+  'filter[product_id]'?: string;
+  'filter[category_id]'?: string;
+  'filter[is_archived]'?: boolean;
+};
 
 type QueryOffers = {
   sort?: 'id' | '-id';
@@ -42,6 +51,18 @@ export class KeycrmClient {
 
   async getProduct(product_id: string): Promise<ProductKeycrm> {
     return await this.$fetch(`products/${product_id}`);
+  }
+
+  async getProducts(
+    query: QueryProducts = {
+      limit: 12,
+      page: 1,
+    }
+  ): Promise<ProductListKeycrm> {
+    const products = await this.$fetch<ProductListKeycrm>('products', {
+      query,
+    });
+    return products;
   }
 
   async getOffers(
