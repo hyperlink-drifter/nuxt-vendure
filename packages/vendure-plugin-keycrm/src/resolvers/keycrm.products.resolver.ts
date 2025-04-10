@@ -6,6 +6,7 @@ import {
   ProductKeycrm,
   ProductListKeycrm,
   ProductOfferKeycrm,
+  StockListKeycrm,
 } from '../types';
 
 type QueryKeycrmProductArgs = {
@@ -31,6 +32,18 @@ type QueryKeycrmCategoriesArgs = {
     filter?: {
       category_id?: Scalars['String'];
       parent_id?: Scalars['String'];
+    };
+  };
+};
+
+type QueryKeycrmStocksArgs = {
+  options: {
+    limit?: Scalars['Int'];
+    page?: Scalars['Int'];
+    filter?: {
+      offers_id?: Scalars['String'];
+      offers_sku?: Scalars['String'];
+      details?: Scalars['Boolean'];
     };
   };
 };
@@ -92,5 +105,22 @@ export class ShopKeycrmProductResolver {
       ...(parent_id && { 'filter[is_archived]': parent_id }),
     });
     return keycrmCategoryList;
+  }
+
+  @Query()
+  async keycrmStocks(
+    @Args() args: QueryKeycrmStocksArgs
+  ): Promise<StockListKeycrm> {
+    const { options } = args;
+    const { limit, page, filter } = options ?? {};
+    const { offers_id, offers_sku, details } = filter ?? {};
+    const keycrmStockList = await this.keycrmClient.getStocks({
+      ...(limit && { limit }),
+      ...(page && { page }),
+      ...(offers_id && { 'filter[offers_id]': offers_id }),
+      ...(offers_sku && { 'filter[offers_sku]': offers_sku }),
+      ...(details && { 'filter[details]': details }),
+    });
+    return keycrmStockList;
   }
 }
