@@ -7,6 +7,7 @@ import {
   PluginInitOptions,
   ProductKeycrm,
   ProductListKeycrm,
+  StockListKeycrm,
 } from './types';
 import { $Fetch, ofetch } from 'ofetch';
 
@@ -39,6 +40,7 @@ type QueryStocks = {
   limit?: number;
   page?: number;
   'filter[offers_id]'?: string;
+  'filter[offers_sku]'?: string;
   'filter[details]'?: boolean;
 };
 
@@ -110,10 +112,8 @@ export class KeycrmClient {
       page: 1,
       'filter[details]': false,
     }
-  ): Promise<Array<OfferStocksKeycrm>> {
-    const { data: stocks } = await this.$fetch<{
-      data: Array<OfferStocksKeycrm>;
-    }>('offers/stocks', {
+  ): Promise<StockListKeycrm> {
+    const stocks = await this.$fetch<StockListKeycrm>('offers/stocks', {
       query,
     });
 
