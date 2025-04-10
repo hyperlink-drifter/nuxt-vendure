@@ -117,6 +117,13 @@ export type WarehouseKeycrm = {
   reserve: number;
 };
 
+export type StockListKeycrm = {
+  total: number;
+  current_page: number;
+  per_page: number;
+  data: Array<OfferStocksKeycrm>;
+};
+
 export type OfferStocksKeycrm = {
   id: number;
   sku: string;
