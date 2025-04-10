@@ -136,10 +136,56 @@ export const shopApiExtensions: DocumentNode = gql`
     updated_at: DateTime!
   }
 
+  type KeycrmWarehouse {
+    id: ID
+    name: String
+    quantity: Int
+    reserve: Int
+  }
+
+  type KeycrmStock {
+    id: ID!
+    sku: String
+    price: Float
+    purchased_price: Float
+    quantity: Int
+    reserve: Int
+    warehouse: [KeycrmWarehouse]
+  }
+
+  type KeycrmStockList {
+    total: Int!
+    current_page: Int!
+    per_page: Int!
+    data: [KeycrmStock!]!
+  }
+
+  input KeycrmStockListOptionsFilterParameter {
+    offers_id: String
+    offers_sku: String
+    details: Boolean
+  }
+
+  input KeycrmStockListOptions {
+    """
+    Maximum number of items in a paginated list. Maximum 50.
+    """
+    limit: Int
+    """
+    Specify the page
+    """
+    page: Int
+    """
+    Allows the results to be filtered
+    """
+    filter: KeycrmStockListOptionsFilterParameter
+  }
+
   extend type Query {
     keycrmProducts(options: KeycrmProductListOptions): KeycrmProductList
     keycrmProduct(id: ID!): KeycrmProduct
     keycrmProductOffer(id: ID!): KeycrmProductOffer
     keycrmCategories(options: KeycrmCategoryListOptions): KeycrmCategoryList
+    keycrmStocks(options: KeycrmStockListOptions): KeycrmStockList
   }
 `;
