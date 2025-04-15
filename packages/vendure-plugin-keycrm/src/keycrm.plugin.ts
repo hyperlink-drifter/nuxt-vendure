@@ -23,7 +23,7 @@ import { PluginInitOptions } from './types';
           {
             name: 'keycrm',
             type: 'struct',
-            nullable: false,
+            nullable: true,
             fields: [
               { name: 'id', type: 'int' },
               { name: 'created_at', type: 'datetime' },
@@ -35,7 +35,7 @@ import { PluginInitOptions } from './types';
           {
             name: 'keycrm',
             type: 'struct',
-            nullable: false,
+            nullable: true,
             fields: [
               { name: 'id', type: 'int' },
               { name: 'product_id', type: 'int' },
