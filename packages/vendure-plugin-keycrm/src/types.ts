@@ -37,3 +37,27 @@ export interface PluginInitOptions {
    */
   apiKey: string;
 }
+
+export type ProductKeycrm = {
+  id: number;
+  name: string;
+  description: string | null;
+  thumbnail_url: string | null;
+  attachments_data: [] | string[];
+  quantity: number;
+  sku?: string;
+  min_price: number;
+  max_price: number;
+  has_offers: boolean;
+  is_archived: boolean;
+  category_id: number | null;
+  created_at: Date;
+  updated_at: Date;
+};
+
+export type ProductListKeycrm = {
+  total: number;
+  current_page: number;
+  per_page: number;
+  items: Array<ProductKeycrm>;
+};
