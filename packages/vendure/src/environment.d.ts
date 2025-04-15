@@ -17,7 +17,6 @@ declare global {
       DB_PASSWORD: string;
       DB_SCHEMA: string;
       KEYCRM_API_KEY: string;
-      KEYCRM_API_BASE_URL: string;
     }
   }
 }
