@@ -7,13 +7,17 @@ import {
 import { KEYCRM_PLUGIN_OPTIONS } from './constants';
 import { PluginInitOptions } from './types';
 import { KeycrmClient } from './keycrm.client';
+import { KeycrmSyncService } from './keycrm.sync.service';
+import { KeycrmSyncController } from './keycrm.sync.controller';
 
 @VendurePlugin({
   imports: [PluginCommonModule],
   providers: [
     { provide: KEYCRM_PLUGIN_OPTIONS, useFactory: () => KeycrmPlugin.options },
     KeycrmClient,
+    KeycrmSyncService,
   ],
+  controllers: [KeycrmSyncController],
   configuration: (config) => {
     // Plugin-specific configuration
     // such as custom fields, custom permissions,
@@ -49,7 +53,7 @@ import { KeycrmClient } from './keycrm.client';
       },
     });
   },
-  compatibility: '^3.0.0',
+  compatibility: '^3.2.2',
   shopApiExtensions: {
     resolvers: [],
   },
