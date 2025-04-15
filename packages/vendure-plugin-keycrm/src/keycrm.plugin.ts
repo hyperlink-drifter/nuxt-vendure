@@ -6,11 +6,13 @@ import {
 } from '@vendure/core';
 import { KEYCRM_PLUGIN_OPTIONS } from './constants';
 import { PluginInitOptions } from './types';
+import { KeycrmClient } from './keycrm.client';
 
 @VendurePlugin({
   imports: [PluginCommonModule],
   providers: [
     { provide: KEYCRM_PLUGIN_OPTIONS, useFactory: () => KeycrmPlugin.options },
+    KeycrmClient,
   ],
   configuration: (config) => {
     // Plugin-specific configuration
