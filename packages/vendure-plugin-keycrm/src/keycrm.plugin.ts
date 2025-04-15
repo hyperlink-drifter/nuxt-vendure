@@ -31,6 +31,19 @@ import { PluginInitOptions } from './types';
             ],
           },
         ],
+        ProductVariant: [
+          {
+            name: 'keycrm',
+            type: 'struct',
+            nullable: false,
+            fields: [
+              { name: 'id', type: 'int' },
+              { name: 'product_id', type: 'int' },
+              { name: 'created_at', type: 'datetime' },
+              { name: 'updated_at', type: 'datetime' },
+            ],
+          },
+        ],
       },
     });
   },
