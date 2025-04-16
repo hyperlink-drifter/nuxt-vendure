@@ -59,5 +59,36 @@ export type ProductListKeycrm = {
   total: number;
   current_page: number;
   per_page: number;
-  items: Array<ProductKeycrm>;
+  data: Array<ProductKeycrm>;
+};
+
+export type ProductOfferKeycrm = ProductKeycrm & {
+  properties_agg?: Record<string, string[]>;
+  offers: Array<OfferKeycrm>;
+};
+
+export type OfferKeycrm = {
+  id: number;
+  product_id: number;
+  sku: string | null;
+  barcode: string | null;
+  thumbnail_url: string | null;
+  price: number;
+  purchased_price: number;
+  quantity: number;
+  weight: number | null;
+  length: number | null;
+  width: number | null;
+  height: number | null;
+  properties: Array<{ name: string; value: string }>;
+  product?: ProductOfferKeycrm;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ProductOfferListKeycrm = {
+  total: number;
+  current_page: number;
+  per_page: number;
+  data: Array<OfferKeycrm>;
 };
