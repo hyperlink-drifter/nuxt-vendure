@@ -59,8 +59,9 @@ export type ProductKeycrm = {
   has_offers: boolean;
   is_archived: boolean;
   category_id: number | null;
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
+  custom_fields: Array<ProductCustomFieldKeycrm>;
 };
 
 export type ProductListKeycrm = {
