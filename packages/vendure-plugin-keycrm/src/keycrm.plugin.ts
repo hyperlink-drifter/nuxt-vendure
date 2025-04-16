@@ -27,27 +27,41 @@ import { KeycrmSyncController } from './keycrm.sync.controller';
       customFields: {
         Product: [
           {
-            name: 'keycrm',
-            type: 'struct',
+            name: 'keycrm_id',
+            type: 'int',
             nullable: true,
-            fields: [
-              { name: 'id', type: 'int' },
-              { name: 'created_at', type: 'datetime' },
-              { name: 'updated_at', type: 'datetime' },
-            ],
+          },
+          {
+            name: 'keycrm_created_at',
+            type: 'datetime',
+            nullable: true,
+          },
+          {
+            name: 'keycrm_updated_at',
+            type: 'datetime',
+            nullable: true,
           },
         ],
         ProductVariant: [
           {
-            name: 'keycrm',
-            type: 'struct',
+            name: 'keycrm_id',
+            type: 'int',
             nullable: true,
-            fields: [
-              { name: 'id', type: 'int' },
-              { name: 'product_id', type: 'int' },
-              { name: 'created_at', type: 'datetime' },
-              { name: 'updated_at', type: 'datetime' },
-            ],
+          },
+          {
+            name: 'keycrm_product_id',
+            type: 'int',
+            nullable: true,
+          },
+          {
+            name: 'keycrm_created_at',
+            type: 'datetime',
+            nullable: true,
+          },
+          {
+            name: 'keycrm_updated_at',
+            type: 'datetime',
+            nullable: true,
           },
         ],
       },
