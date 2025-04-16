@@ -10,20 +10,16 @@ import {
 
 declare module '@vendure/core/dist/entity/custom-entity-fields' {
   interface CustomProductFields {
-    keycrm: {
-      id: number;
-      created_at: Date;
-      updated_at: Date;
-    };
+    keycrm_id: number;
+    keycrm_created_at: Date;
+    keycrm_updated_at: Date;
   }
 
   interface CustomProductVariantFields {
-    keycrm: {
-      id: number;
-      product_id: number;
-      created_at: Date;
-      updated_at: Date;
-    };
+    keycrm_id: number;
+    keycrm_product_id: number;
+    keycrm_created_at: Date;
+    keycrm_updated_at: Date;
   }
 }
 
