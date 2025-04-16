@@ -6,6 +6,7 @@ import { $Fetch, ofetch } from 'ofetch';
 type QueryProducts = {
   limit?: number;
   page?: number;
+  include?: 'custom_fields';
   'filter[product_id]'?: string;
   'filter[category_id]'?: string;
   'filter[is_archived]'?: boolean;
