@@ -38,6 +38,14 @@ export interface PluginInitOptions {
   apiKey: string;
 }
 
+export type ProductCustomFieldKeycrm = {
+  id: number;
+  uuid: string;
+  name: string;
+  type: string;
+  value: string;
+};
+
 export type ProductKeycrm = {
   id: number;
   name: string;
