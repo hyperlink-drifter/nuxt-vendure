@@ -1,6 +1,8 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { KeycrmClient } from './keycrm.client';
 import {
+  AssetService,
+  ConfigService,
   Importer,
   JobQueue,
   JobQueueService,
@@ -8,6 +10,7 @@ import {
   ParsedProductWithVariants,
   ProductService,
   RequestContext,
+  SearchService,
   SerializedRequestContext,
 } from '@vendure/core';
 import {
@@ -29,6 +32,9 @@ export class KeycrmSyncService implements OnModuleInit {
     private keycrmClient: KeycrmClient,
     private jobQueueService: JobQueueService,
     private productService: ProductService,
+    private assetService: AssetService,
+    private searchService: SearchService,
+    private configService: ConfigService,
     private importer: Importer
   ) {}
 
@@ -80,81 +86,194 @@ export class KeycrmSyncService implements OnModuleInit {
 
         Logger.info(`Product ${productKeycrm.id}`, loggerCtx);
 
-        if (!productVendure) {
-          Logger.info(`Not yet available within vendure's system`, loggerCtx);
-          Logger.info(`Starting import`, loggerCtx);
+        if (productVendure) {
+          Logger.info(`Already available within vendure's system.`, loggerCtx);
+          Logger.info(`Soft deleting Product ${productVendure.id}`, loggerCtx);
+          const productSoftDeletionResponse =
+            await this.productService.softDelete(ctx, productVendure.id);
+          Logger.info(
+            `${JSON.stringify(productSoftDeletionResponse)}`,
+            loggerCtx
+          );
 
-          const importRow: ParsedProductWithVariants[] = [
-            {
-              product: {
+          const assetStorageStrategy =
+            this.configService.assetOptions.assetStorageStrategy;
+
+          const assets = await this.assetService.getEntityAssets(
+            ctx,
+            productVendure
+          );
+
+          if (assets && assets.length) {
+            for (const asset of assets) {
+              const sourceFileExists = await assetStorageStrategy.fileExists(
+                asset.source
+              );
+
+              if (sourceFileExists) {
+                try {
+                  Logger.info(
+                    `deleting asset source file ${asset.source}`,
+                    loggerCtx
+                  );
+                  await assetStorageStrategy.deleteFile(asset.source);
+                } catch (e: any) {
+                  Logger.error(
+                    'error.could-not-delete-asset-source-file',
+                    loggerCtx,
+                    e.stack
+                  );
+                }
+              }
+
+              const previewFileExists = await assetStorageStrategy.fileExists(
+                asset.preview
+              );
+
+              if (previewFileExists) {
+                try {
+                  Logger.info(
+                    `deleting asset preview file ${asset.preview}`,
+                    loggerCtx
+                  );
+                  await assetStorageStrategy.deleteFile(asset.preview);
+                } catch (e: any) {
+                  Logger.error(
+                    'error.could-not-delete-asset-preview-file',
+                    loggerCtx,
+                    e.stack
+                  );
+                }
+              }
+            }
+          }
+
+          const featuredAsset = await this.assetService.getFeaturedAsset(
+            ctx,
+            productVendure
+          );
+
+          if (featuredAsset) {
+            const featuredAssetSourceFileExists =
+              await assetStorageStrategy.fileExists(featuredAsset.source);
+
+            if (featuredAssetSourceFileExists) {
+              try {
+                Logger.info(
+                  `deleting featured asset source file ${featuredAsset.source}`,
+                  loggerCtx
+                );
+                await assetStorageStrategy.deleteFile(featuredAsset.source);
+              } catch (e: any) {
+                Logger.error(
+                  'error.could-not-delete-featured-asset-source-file',
+                  loggerCtx,
+                  e.stack
+                );
+              }
+            }
+
+            const featuredAssetPreviewFileExists =
+              await assetStorageStrategy.fileExists(featuredAsset.preview);
+
+            if (featuredAssetPreviewFileExists) {
+              try {
+                Logger.info(
+                  `deleting featured asset preview file ${featuredAsset.preview}`,
+                  loggerCtx
+                );
+                await assetStorageStrategy.deleteFile(featuredAsset.preview);
+              } catch (e: any) {
+                Logger.error(
+                  'error.could-not-delete-featured-asset-preview-file',
+                  loggerCtx,
+                  e.stack
+                );
+              }
+            }
+          }
+        } else {
+          Logger.info(`Not yet available within vendure's system`, loggerCtx);
+        }
+
+        Logger.info(`Starting import`, loggerCtx);
+        const importRow: ParsedProductWithVariants[] = [
+          {
+            product: {
+              translations: [
+                {
+                  languageCode: LanguageCode.uk,
+                  name: productKeycrm.name,
+                  slug: slug,
+                  description: productKeycrm.description
+                    ? productKeycrm.description
+                    : '',
+                  customFields: {
+                    keycrm_id: `${productKeycrm.id}`,
+                    keycrm_created_at: productKeycrm.created_at,
+                    keycrm_updated_at: productKeycrm.updated_at,
+                  },
+                },
+              ],
+              assetPaths: productKeycrm.attachments_data.map((url) => url),
+              facets: [],
+              optionGroups: Object.keys(properties_agg).map((key) => ({
                 translations: [
                   {
                     languageCode: LanguageCode.uk,
-                    name: productKeycrm.name,
-                    slug: slug,
-                    description: productKeycrm.description
-                      ? productKeycrm.description
-                      : '',
+                    name: key,
+                    values: properties_agg[key],
+                  },
+                ],
+              })),
+            },
+            variants: offersKeycrm.map((offer) => {
+              return {
+                sku: offer.sku ? offer.sku : '',
+                price: offer.price,
+                stockOnHand: offer.quantity,
+                translations: [
+                  {
+                    languageCode: LanguageCode.uk,
+                    // option values must be in the same order as the order of option groups generation
+                    optionValues: Object.keys(properties_agg).map(
+                      (key) =>
+                        offer.properties.find((prop) => prop.name === key)
+                          ?.value ?? ''
+                    ),
                     customFields: {
-                      keycrm_id: `${productKeycrm.id}`,
-                      keycrm_created_at: productKeycrm.created_at,
-                      keycrm_updated_at: productKeycrm.updated_at,
+                      keycrm_id: `${offer.id}`,
+                      keycrm_product_id: `${offer.product_id}`,
+                      keycrm_created_at: offer.created_at,
+                      keycrm_updated_at: offer.updated_at,
                     },
                   },
                 ],
-                assetPaths: productKeycrm.attachments_data.map((url) => url),
+                assetPaths: offer.thumbnail_url ? [offer.thumbnail_url] : [],
+                trackInventory: GlobalFlag.FALSE,
                 facets: [],
-                optionGroups: Object.keys(properties_agg).map((key) => ({
-                  translations: [
-                    {
-                      languageCode: LanguageCode.uk,
-                      name: key,
-                      values: properties_agg[key],
-                    },
-                  ],
-                })),
-              },
-              variants: offersKeycrm.map((offer) => {
-                return {
-                  sku: offer.sku ? offer.sku : '',
-                  price: offer.price,
-                  stockOnHand: offer.quantity,
-                  translations: [
-                    {
-                      languageCode: LanguageCode.uk,
-                      // option values must be in the same order as the order of option groups generation
-                      optionValues: Object.keys(properties_agg).map(
-                        (key) =>
-                          offer.properties.find((prop) => prop.name === key)
-                            ?.value ?? ''
-                      ),
-                      customFields: {
-                        keycrm_id: `${offer.id}`,
-                        keycrm_product_id: `${offer.product_id}`,
-                        keycrm_created_at: offer.created_at,
-                        keycrm_updated_at: offer.updated_at,
-                      },
-                    },
-                  ],
-                  assetPaths: offer.thumbnail_url ? [offer.thumbnail_url] : [],
-                  trackInventory: GlobalFlag.FALSE,
-                  facets: [],
-                  taxCategory: 'default',
-                };
-              }),
-            },
-          ];
+                taxCategory: 'default',
+              };
+            }),
+          },
+        ];
 
+        try {
           await this.importer.importProducts(ctx, importRow, (progress) => {
-            Logger.info(`Imported product`, loggerCtx);
-            Logger.info(`Id: ${productKeycrm.id}`, loggerCtx);
-            Logger.info(`Name: ${productKeycrm.name}`, loggerCtx);
-            console.info(JSON.stringify(progress));
+            Logger.info(
+              `Imported product (${productKeycrm.id}) ${productKeycrm.name}`,
+              loggerCtx
+            );
           });
-        } else {
-          Logger.info(`Already available within vendure's system.`, loggerCtx);
-          Logger.info(`Starting update.`, loggerCtx);
+        } catch (e: any) {
+          Logger.error(
+            'error.could-not-import-product-row',
+            loggerCtx,
+            e.stack
+          );
         }
+
+        await this.searchService.reindex(ctx);
 
         return { 'mac-and-cheese': true };
       },
@@ -189,7 +308,7 @@ export class KeycrmSyncService implements OnModuleInit {
           return update.result;
         })
         .catch((error: any) => {
-          Logger.error(`Error: ${error}`, loggerCtx);
+          Logger.error(`error.job-update`, loggerCtx, error.stack);
         });
     }
 
