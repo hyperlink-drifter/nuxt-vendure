@@ -137,6 +137,7 @@ export class KeycrmSyncService implements OnModuleInit {
               ],
             });
 
+            //** Assets deleted within keycrm still exist within vendure and must be deleted */
             const leftBehindAssetIds = currentAssetIds.filter(
               (id) => !newAssetIds.includes(id)
             );
@@ -215,7 +216,7 @@ export class KeycrmSyncService implements OnModuleInit {
           ];
 
           try {
-            await this.importer.importProducts(ctx, importRow, (progress) => {
+            await this.importer.importProducts(ctx, importRow, () => {
               Logger.info(
                 `Imported product (${productKeycrm.id}) ${productKeycrm.name}`,
                 loggerCtx
