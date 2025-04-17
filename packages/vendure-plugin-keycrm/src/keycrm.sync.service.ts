@@ -1,8 +1,8 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { KeycrmClient } from './keycrm.client';
 import {
+  AssetImporter,
   AssetService,
-  ConfigService,
   Importer,
   JobQueue,
   JobQueueService,
@@ -34,8 +34,8 @@ export class KeycrmSyncService implements OnModuleInit {
     private productService: ProductService,
     private assetService: AssetService,
     private searchService: SearchService,
-    private configService: ConfigService,
-    private importer: Importer
+    private importer: Importer,
+    private assetImporter: AssetImporter
   ) {}
 
   async onModuleInit() {
@@ -84,122 +84,47 @@ export class KeycrmSyncService implements OnModuleInit {
           slug
         );
 
-        Logger.info(`Product ${productKeycrm.id}`, loggerCtx);
+        Logger.info(
+          `Product (${productKeycrm.id}) ${productKeycrm.name}`,
+          loggerCtx
+        );
 
         if (productVendure) {
           Logger.info(`Already available within vendure's system.`, loggerCtx);
-          Logger.info(`Soft deleting Product ${productVendure.id}`, loggerCtx);
-          const productSoftDeletionResponse =
-            await this.productService.softDelete(ctx, productVendure.id);
-          Logger.info(
-            `${JSON.stringify(productSoftDeletionResponse)}`,
-            loggerCtx
-          );
 
-          const assetStorageStrategy =
-            this.configService.assetOptions.assetStorageStrategy;
+          const isProductUpToDate =
+            productVendure.customFields.keycrm_updated_at.getTime() ===
+            new Date(productKeycrm.updated_at).getTime();
 
-          const assets = await this.assetService.getEntityAssets(
-            ctx,
-            productVendure
-          );
+          if (isProductUpToDate) {
+            Logger.info(`Product is up to date`, loggerCtx);
+          } else {
+            Logger.info(`Updating Product`, loggerCtx);
 
-          if (assets && assets.length) {
-            for (const asset of assets) {
-              const sourceFileExists = await assetStorageStrategy.fileExists(
-                asset.source
-              );
+            const currentAssets = await this.assetService.getEntityAssets(
+              ctx,
+              productVendure
+            );
 
-              if (sourceFileExists) {
-                try {
-                  Logger.info(
-                    `deleting asset source file ${asset.source}`,
-                    loggerCtx
-                  );
-                  await assetStorageStrategy.deleteFile(asset.source);
-                } catch (e: any) {
-                  Logger.error(
-                    'error.could-not-delete-asset-source-file',
-                    loggerCtx,
-                    e.stack
-                  );
-                }
-              }
+            const currentAssetIds = currentAssets
+              ? currentAssets.map((asset) => asset.id)
+              : [];
 
-              const previewFileExists = await assetStorageStrategy.fileExists(
-                asset.preview
-              );
+            const { assets: newAssets } = await this.assetImporter.getAssets(
+              productKeycrm.attachments_data
+            );
 
-              if (previewFileExists) {
-                try {
-                  Logger.info(
-                    `deleting asset preview file ${asset.preview}`,
-                    loggerCtx
-                  );
-                  await assetStorageStrategy.deleteFile(asset.preview);
-                } catch (e: any) {
-                  Logger.error(
-                    'error.could-not-delete-asset-preview-file',
-                    loggerCtx,
-                    e.stack
-                  );
-                }
-              }
-            }
-          }
+            const newAssetIds = newAssets.map((asset) => asset.id);
 
-          const featuredAsset = await this.assetService.getFeaturedAsset(
-            ctx,
-            productVendure
-          );
-
-          if (featuredAsset) {
-            const featuredAssetSourceFileExists =
-              await assetStorageStrategy.fileExists(featuredAsset.source);
-
-            if (featuredAssetSourceFileExists) {
-              try {
-                Logger.info(
-                  `deleting featured asset source file ${featuredAsset.source}`,
-                  loggerCtx
-                );
-                await assetStorageStrategy.deleteFile(featuredAsset.source);
-              } catch (e: any) {
-                Logger.error(
-                  'error.could-not-delete-featured-asset-source-file',
-                  loggerCtx,
-                  e.stack
-                );
-              }
-            }
-
-            const featuredAssetPreviewFileExists =
-              await assetStorageStrategy.fileExists(featuredAsset.preview);
-
-            if (featuredAssetPreviewFileExists) {
-              try {
-                Logger.info(
-                  `deleting featured asset preview file ${featuredAsset.preview}`,
-                  loggerCtx
-                );
-                await assetStorageStrategy.deleteFile(featuredAsset.preview);
-              } catch (e: any) {
-                Logger.error(
-                  'error.could-not-delete-featured-asset-preview-file',
-                  loggerCtx,
-                  e.stack
-                );
-              }
-            }
-          }
-        } else {
-          Logger.info(`Not yet available within vendure's system`, loggerCtx);
-        }
-
-        Logger.info(`Starting import`, loggerCtx);
-        const importRow: ParsedProductWithVariants[] = [
-          {
-            product: {
+            await this.productService.update(ctx, {
+              id: productVendure.id,
+              assetIds: newAssetIds,
+              featuredAssetId: newAssetIds[0],
+              customFields: {
+                keycrm_id: `${productKeycrm.id}`,
+                keycrm_created_at: productKeycrm.created_at,
+                keycrm_updated_at: productKeycrm.updated_at,
+              },
               translations: [
                 {
                   languageCode: LanguageCode.uk,
@@ -208,69 +133,101 @@ export class KeycrmSyncService implements OnModuleInit {
                   description: productKeycrm.description
                     ? productKeycrm.description
                     : '',
-                  customFields: {
-                    keycrm_id: `${productKeycrm.id}`,
-                    keycrm_created_at: productKeycrm.created_at,
-                    keycrm_updated_at: productKeycrm.updated_at,
-                  },
                 },
               ],
-              assetPaths: productKeycrm.attachments_data.map((url) => url),
-              facets: [],
-              optionGroups: Object.keys(properties_agg).map((key) => ({
+            });
+
+            const leftBehindAssetIds = currentAssetIds.filter(
+              (id) => !newAssetIds.includes(id)
+            );
+
+            if (leftBehindAssetIds && leftBehindAssetIds.length) {
+              Logger.info(`Deleting left-behind assets`, loggerCtx);
+              const deletionResponse = await this.assetService.delete(
+                ctx,
+                leftBehindAssetIds
+              );
+              Logger.info(`${JSON.stringify(deletionResponse)}`, loggerCtx);
+            }
+          }
+        } else {
+          Logger.info(`Not yet available within vendure's system`, loggerCtx);
+          Logger.info(`Starting import`, loggerCtx);
+          const importRow: ParsedProductWithVariants[] = [
+            {
+              product: {
                 translations: [
                   {
                     languageCode: LanguageCode.uk,
-                    name: key,
-                    values: properties_agg[key],
-                  },
-                ],
-              })),
-            },
-            variants: offersKeycrm.map((offer) => {
-              return {
-                sku: offer.sku ? offer.sku : '',
-                price: offer.price,
-                stockOnHand: offer.quantity,
-                translations: [
-                  {
-                    languageCode: LanguageCode.uk,
-                    // option values must be in the same order as the order of option groups generation
-                    optionValues: Object.keys(properties_agg).map(
-                      (key) =>
-                        offer.properties.find((prop) => prop.name === key)
-                          ?.value ?? ''
-                    ),
+                    name: productKeycrm.name,
+                    slug: slug,
+                    description: productKeycrm.description
+                      ? productKeycrm.description
+                      : '',
                     customFields: {
-                      keycrm_id: `${offer.id}`,
-                      keycrm_product_id: `${offer.product_id}`,
-                      keycrm_created_at: offer.created_at,
-                      keycrm_updated_at: offer.updated_at,
+                      keycrm_id: `${productKeycrm.id}`,
+                      keycrm_created_at: productKeycrm.created_at,
+                      keycrm_updated_at: productKeycrm.updated_at,
                     },
                   },
                 ],
-                assetPaths: offer.thumbnail_url ? [offer.thumbnail_url] : [],
-                trackInventory: GlobalFlag.FALSE,
+                assetPaths: productKeycrm.attachments_data.map((url) => url),
                 facets: [],
-                taxCategory: 'default',
-              };
-            }),
-          },
-        ];
+                optionGroups: Object.keys(properties_agg).map((key) => ({
+                  translations: [
+                    {
+                      languageCode: LanguageCode.uk,
+                      name: key,
+                      values: properties_agg[key],
+                    },
+                  ],
+                })),
+              },
+              variants: offersKeycrm.map((offer) => {
+                return {
+                  sku: offer.sku ? offer.sku : '',
+                  price: offer.price,
+                  stockOnHand: offer.quantity,
+                  translations: [
+                    {
+                      languageCode: LanguageCode.uk,
+                      // option values must be in the same order as the order of option groups generation
+                      optionValues: Object.keys(properties_agg).map(
+                        (key) =>
+                          offer.properties.find((prop) => prop.name === key)
+                            ?.value ?? ''
+                      ),
+                      customFields: {
+                        keycrm_id: `${offer.id}`,
+                        keycrm_product_id: `${offer.product_id}`,
+                        keycrm_created_at: offer.created_at,
+                        keycrm_updated_at: offer.updated_at,
+                      },
+                    },
+                  ],
+                  assetPaths: offer.thumbnail_url ? [offer.thumbnail_url] : [],
+                  trackInventory: GlobalFlag.FALSE,
+                  facets: [],
+                  taxCategory: 'default',
+                };
+              }),
+            },
+          ];
 
-        try {
-          await this.importer.importProducts(ctx, importRow, (progress) => {
-            Logger.info(
-              `Imported product (${productKeycrm.id}) ${productKeycrm.name}`,
-              loggerCtx
+          try {
+            await this.importer.importProducts(ctx, importRow, (progress) => {
+              Logger.info(
+                `Imported product (${productKeycrm.id}) ${productKeycrm.name}`,
+                loggerCtx
+              );
+            });
+          } catch (e: any) {
+            Logger.error(
+              'error.could-not-import-product-row',
+              loggerCtx,
+              e.stack
             );
-          });
-        } catch (e: any) {
-          Logger.error(
-            'error.could-not-import-product-row',
-            loggerCtx,
-            e.stack
-          );
+          }
         }
 
         await this.searchService.reindex(ctx);
@@ -307,8 +264,8 @@ export class KeycrmSyncService implements OnModuleInit {
           }
           return update.result;
         })
-        .catch((error: any) => {
-          Logger.error(`error.job-update`, loggerCtx, error.stack);
+        .catch(() => {
+          Logger.error(`error.job-update`, loggerCtx);
         });
     }
 
