@@ -8,16 +8,22 @@ import {
   JobQueueService,
   Logger,
   ParsedProductWithVariants,
+  ProductOptionGroupService,
+  ProductOptionService,
   ProductService,
+  ProductVariant,
+  ProductVariantService,
   RequestContext,
   SearchService,
   SerializedRequestContext,
+  TransactionalConnection,
 } from '@vendure/core';
 import {
   GlobalFlag,
   JobState,
   LanguageCode,
 } from '@vendure/common/lib/generated-types';
+import { In, IsNull } from 'typeorm';
 import { loggerCtx } from './constants';
 import { ProductKeycrm } from './types';
 
@@ -32,10 +38,14 @@ export class KeycrmSyncService implements OnModuleInit {
     private keycrmClient: KeycrmClient,
     private jobQueueService: JobQueueService,
     private productService: ProductService,
+    private productVariantService: ProductVariantService,
     private assetService: AssetService,
+    private productOptionGroupService: ProductOptionGroupService,
+    private productOptionService: ProductOptionService,
     private searchService: SearchService,
     private importer: Importer,
-    private assetImporter: AssetImporter
+    private assetImporter: AssetImporter,
+    private connection: TransactionalConnection
   ) {}
 
   async onModuleInit() {
@@ -63,9 +73,9 @@ export class KeycrmSyncService implements OnModuleInit {
           'filter[product_id]': `${productKeycrm.id}`,
         });
 
-        const { data: offersKeycrm } = offerList;
+        const { data: keycrmVariants } = offerList;
 
-        const { product: productOfferKeycrm } = offersKeycrm[0];
+        const { product: productOfferKeycrm } = keycrmVariants[0];
 
         if (!productOfferKeycrm) {
           Logger.error(`Could not find included product in offer`, loggerCtx);
@@ -91,64 +101,185 @@ export class KeycrmSyncService implements OnModuleInit {
 
         if (productVendure) {
           Logger.info(`Already available within vendure's system.`, loggerCtx);
+          Logger.info(`Updating Product`, loggerCtx);
 
-          const isProductUpToDate =
-            productVendure.customFields.keycrm_updated_at.getTime() ===
-            new Date(productKeycrm.updated_at).getTime();
+          const currentAssets = await this.assetService.getEntityAssets(
+            ctx,
+            productVendure
+          );
 
-          if (isProductUpToDate) {
-            Logger.info(`Product is up to date`, loggerCtx);
-          } else {
-            Logger.info(`Updating Product`, loggerCtx);
+          const currentAssetIds = currentAssets
+            ? currentAssets.map((asset) => asset.id)
+            : [];
 
-            const currentAssets = await this.assetService.getEntityAssets(
-              ctx,
-              productVendure
-            );
+          const { assets: newAssets } = await this.assetImporter.getAssets(
+            productKeycrm.attachments_data
+          );
 
-            const currentAssetIds = currentAssets
-              ? currentAssets.map((asset) => asset.id)
-              : [];
+          const newAssetIds = newAssets.map((asset) => asset.id);
 
-            const { assets: newAssets } = await this.assetImporter.getAssets(
-              productKeycrm.attachments_data
-            );
-
-            const newAssetIds = newAssets.map((asset) => asset.id);
-
-            await this.productService.update(ctx, {
-              id: productVendure.id,
-              assetIds: newAssetIds,
-              featuredAssetId: newAssetIds[0],
-              customFields: {
-                keycrm_id: `${productKeycrm.id}`,
-                keycrm_created_at: productKeycrm.created_at,
-                keycrm_updated_at: productKeycrm.updated_at,
+          await this.productService.update(ctx, {
+            id: productVendure.id,
+            assetIds: newAssetIds,
+            featuredAssetId: newAssetIds[0],
+            customFields: {
+              keycrm_id: `${productKeycrm.id}`,
+              keycrm_created_at: productKeycrm.created_at,
+              keycrm_updated_at: productKeycrm.updated_at,
+            },
+            translations: [
+              {
+                languageCode: LanguageCode.uk,
+                name: productKeycrm.name,
+                slug: slug,
+                description: productKeycrm.description
+                  ? productKeycrm.description
+                  : '',
               },
-              translations: [
-                {
-                  languageCode: LanguageCode.uk,
-                  name: productKeycrm.name,
-                  slug: slug,
-                  description: productKeycrm.description
-                    ? productKeycrm.description
-                    : '',
-                },
-              ],
-            });
+            ],
+          });
 
-            //** Assets deleted within keycrm still exist within vendure and must be deleted */
-            const leftBehindAssetIds = currentAssetIds.filter(
-              (id) => !newAssetIds.includes(id)
+          //** Assets deleted within keycrm still exist within vendure and must be deleted */
+          const leftBehindAssetIds = currentAssetIds.filter(
+            (id) => !newAssetIds.includes(id)
+          );
+
+          if (leftBehindAssetIds && leftBehindAssetIds.length) {
+            Logger.info(`Deleting left-behind assets`, loggerCtx);
+            const deletionResponse = await this.assetService.delete(
+              ctx,
+              leftBehindAssetIds
+            );
+            Logger.info(`${JSON.stringify(deletionResponse)}`, loggerCtx);
+          }
+
+          const currentOptionGroups =
+            await this.productOptionGroupService.getOptionGroupsByProductId(
+              ctx,
+              productVendure.id
             );
 
-            if (leftBehindAssetIds && leftBehindAssetIds.length) {
-              Logger.info(`Deleting left-behind assets`, loggerCtx);
-              const deletionResponse = await this.assetService.delete(
+          for (const group of currentOptionGroups) {
+            await this.productService.removeOptionGroupFromProduct(
+              ctx,
+              productVendure.id,
+              group.id,
+              // Removal of this ProductOptionGroup will be forced by first
+              // removing all ProductOptions from the ProductVariants
+              true
+            );
+          }
+
+          const createdOptionsMap = new Map();
+
+          for (const key of Object.keys(properties_agg)) {
+            const newOptionGroup = await this.productOptionGroupService.create(
+              ctx,
+              {
+                code: `${productVendure.slug}-${key}`,
+                translations: [
+                  {
+                    languageCode: LanguageCode.uk,
+                    name: key,
+                  },
+                ],
+              }
+            );
+
+            for (const option of properties_agg[key]) {
+              const optionCode = `${productVendure.slug}-${key}-${option}`;
+              const createdOption = await this.productOptionService.create(
                 ctx,
-                leftBehindAssetIds
+                newOptionGroup.id,
+                {
+                  code: optionCode,
+                  productOptionGroupId: newOptionGroup.id,
+                  translations: [
+                    {
+                      languageCode: LanguageCode.uk,
+                      name: option,
+                    },
+                  ],
+                }
               );
-              Logger.info(`${JSON.stringify(deletionResponse)}`, loggerCtx);
+
+              createdOptionsMap.set(optionCode, createdOption.id);
+            }
+
+            await this.productService.addOptionGroupToProduct(
+              ctx,
+              productVendure.id,
+              newOptionGroup.id
+            );
+          }
+
+          for (const variantKeycrm of keycrmVariants) {
+            const variantVendure = await this.connection
+              .getRepository(ctx, ProductVariant)
+              .findOne({
+                where: {
+                  customFields: { keycrm_id: variantKeycrm.id },
+                  deletedAt: IsNull(),
+                },
+              });
+
+            if (variantVendure) {
+              const currentAssets = await this.assetService.getEntityAssets(
+                ctx,
+                variantVendure
+              );
+
+              const currentAssetIds = currentAssets
+                ? currentAssets.map((asset) => asset.id)
+                : [];
+
+              const { assets: newAssets } = await this.assetImporter.getAssets([
+                variantKeycrm.thumbnail_url ? variantKeycrm.thumbnail_url : '',
+              ]);
+
+              const newAssetIds = newAssets.map((asset) => asset.id);
+
+              await this.productVariantService.update(ctx, [
+                {
+                  id: variantVendure.id,
+                  sku: variantKeycrm.sku ? variantKeycrm.sku : '',
+                  price: variantKeycrm.price,
+                  stockOnHand: variantKeycrm.quantity,
+                  featuredAssetId: newAssetIds[0],
+                  optionIds: variantKeycrm.properties.map((prop) =>
+                    createdOptionsMap.get(
+                      `${productVendure.slug}-${prop.name}-${prop.value}`
+                    )
+                  ),
+                  translations: [
+                    {
+                      languageCode: LanguageCode.uk,
+                      customFields: {
+                        keycrm_id: `${variantKeycrm.id}`,
+                        keycrm_product_id: `${variantKeycrm.product_id}`,
+                        keycrm_created_at: variantKeycrm.created_at,
+                        keycrm_updated_at: variantKeycrm.updated_at,
+                      },
+                    },
+                  ],
+                },
+              ]);
+
+              //** Assets deleted within keycrm still exist within vendure and must be deleted */
+              const leftBehindAssetIds = currentAssetIds.filter(
+                (id) => !newAssetIds.includes(id)
+              );
+              if (leftBehindAssetIds && leftBehindAssetIds.length) {
+                Logger.info(
+                  `Deleting left-behind assets of Variant`,
+                  loggerCtx
+                );
+                const deletionResponse = await this.assetService.delete(
+                  ctx,
+                  leftBehindAssetIds
+                );
+                Logger.info(`${JSON.stringify(deletionResponse)}`, loggerCtx);
+              }
             }
           }
         } else {
@@ -184,7 +315,7 @@ export class KeycrmSyncService implements OnModuleInit {
                   ],
                 })),
               },
-              variants: offersKeycrm.map((offer) => {
+              variants: keycrmVariants.map((offer) => {
                 return {
                   sku: offer.sku ? offer.sku : '',
                   price: offer.price,
@@ -223,11 +354,12 @@ export class KeycrmSyncService implements OnModuleInit {
               );
             });
           } catch (e: any) {
-            Logger.error(
-              'error.could-not-import-product-row',
-              loggerCtx,
-              e.stack
-            );
+            console.info({ e });
+            // Logger.error(
+            //   'error.could-not-import-product-row',
+            //   loggerCtx,
+            //   e.stack
+            // );
           }
         }
 
