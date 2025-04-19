@@ -17,6 +17,7 @@ import {
   SerializedRequestContext,
 } from '@vendure/core';
 import {
+  DeletionResult,
   GlobalFlag,
   JobState,
   LanguageCode,
@@ -143,11 +144,16 @@ export class KeycrmSyncService implements OnModuleInit {
 
           if (leftbehindAssetIds && leftbehindAssetIds.length) {
             Logger.info(`Deleting left-behind assets`, loggerCtx);
+
             const deletionResponse = await this.assetService.delete(
               ctx,
               leftbehindAssetIds
             );
-            Logger.info(`${JSON.stringify(deletionResponse)}`, loggerCtx);
+
+            Logger.info(`Result: ${deletionResponse.result}`, loggerCtx);
+            if (deletionResponse.result === DeletionResult.NOT_DELETED) {
+              Logger.info(`Message: ${deletionResponse.message}`, loggerCtx);
+            }
           }
 
           /** OptionGroups and Options */
@@ -301,7 +307,13 @@ export class KeycrmSyncService implements OnModuleInit {
                   leftbehindAssetIds
                 );
 
-                Logger.info(`${JSON.stringify(deletionResponse)}`, loggerCtx);
+                Logger.info(`Result: ${deletionResponse.result}`, loggerCtx);
+                if (deletionResponse.result === DeletionResult.NOT_DELETED) {
+                  Logger.info(
+                    `Message: ${deletionResponse.message}`,
+                    loggerCtx
+                  );
+                }
               }
             }
             //** Create Variant */
