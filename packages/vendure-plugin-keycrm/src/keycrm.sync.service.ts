@@ -99,6 +99,7 @@ export class KeycrmSyncService implements OnModuleInit {
           loggerCtx
         );
 
+        //** Update Product */
         if (productVendure) {
           Logger.info(`Already available within vendure's system.`, loggerCtx);
           Logger.info(`Updating Product`, loggerCtx);
@@ -153,6 +154,7 @@ export class KeycrmSyncService implements OnModuleInit {
             Logger.info(`${JSON.stringify(deletionResponse)}`, loggerCtx);
           }
 
+          /** OptionGroups and Options */
           const currentOptionGroups =
             await this.productOptionGroupService.getOptionGroupsByProductId(
               ctx,
@@ -213,16 +215,24 @@ export class KeycrmSyncService implements OnModuleInit {
             );
           }
 
-          for (const variantKeycrm of keycrmVariants) {
+          /** Variants */
+          for (const keycrmVariant of keycrmVariants) {
             const variantVendure = await this.connection
               .getRepository(ctx, ProductVariant)
               .findOne({
                 where: {
-                  customFields: { keycrm_id: variantKeycrm.id },
+                  customFields: { keycrm_id: keycrmVariant.id },
                   deletedAt: IsNull(),
                 },
               });
 
+            const { assets: newAssets } = await this.assetImporter.getAssets([
+              keycrmVariant.thumbnail_url ? keycrmVariant.thumbnail_url : '',
+            ]);
+
+            const newAssetIds = newAssets.map((asset) => asset.id);
+
+            //** Update Variant */
             if (variantVendure) {
               const currentAssets = await this.assetService.getEntityAssets(
                 ctx,
@@ -233,32 +243,39 @@ export class KeycrmSyncService implements OnModuleInit {
                 ? currentAssets.map((asset) => asset.id)
                 : [];
 
-              const { assets: newAssets } = await this.assetImporter.getAssets([
-                variantKeycrm.thumbnail_url ? variantKeycrm.thumbnail_url : '',
-              ]);
-
-              const newAssetIds = newAssets.map((asset) => asset.id);
-
               await this.productVariantService.update(ctx, [
                 {
                   id: variantVendure.id,
-                  sku: variantKeycrm.sku ? variantKeycrm.sku : '',
-                  price: variantKeycrm.price,
-                  stockOnHand: variantKeycrm.quantity,
+                  sku: keycrmVariant.sku ? keycrmVariant.sku : '',
+                  price: keycrmVariant.price,
+                  stockOnHand: keycrmVariant.quantity,
                   featuredAssetId: newAssetIds[0],
-                  optionIds: variantKeycrm.properties.map((prop) =>
+                  optionIds: keycrmVariant.properties.map((prop) =>
                     createdOptionsMap.get(
                       `${productVendure.slug}-${prop.name}-${prop.value}`
                     )
                   ),
+                  customFields: {
+                    keycrm_id: `${keycrmVariant.id}`,
+                    keycrm_product_id: `${keycrmVariant.product_id}`,
+                    keycrm_created_at: keycrmVariant.created_at,
+                    keycrm_updated_at: keycrmVariant.updated_at,
+                  },
                   translations: [
                     {
                       languageCode: LanguageCode.uk,
+                      name: [
+                        productVendure.name,
+                        ...keycrmVariant.properties.map(
+                          (prop) => `${prop.name} ${prop.value}`
+                        ),
+                        ,
+                      ].join(' '),
                       customFields: {
-                        keycrm_id: `${variantKeycrm.id}`,
-                        keycrm_product_id: `${variantKeycrm.product_id}`,
-                        keycrm_created_at: variantKeycrm.created_at,
-                        keycrm_updated_at: variantKeycrm.updated_at,
+                        keycrm_id: `${keycrmVariant.id}`,
+                        keycrm_product_id: `${keycrmVariant.product_id}`,
+                        keycrm_created_at: keycrmVariant.created_at,
+                        keycrm_updated_at: keycrmVariant.updated_at,
                       },
                     },
                   ],
@@ -269,17 +286,61 @@ export class KeycrmSyncService implements OnModuleInit {
               const leftBehindAssetIds = currentAssetIds.filter(
                 (id) => !newAssetIds.includes(id)
               );
+
               if (leftBehindAssetIds && leftBehindAssetIds.length) {
                 Logger.info(
                   `Deleting left-behind assets of Variant`,
                   loggerCtx
                 );
+
                 const deletionResponse = await this.assetService.delete(
                   ctx,
                   leftBehindAssetIds
                 );
+
                 Logger.info(`${JSON.stringify(deletionResponse)}`, loggerCtx);
               }
+            }
+            //** Create Variant */
+            else {
+              await this.productVariantService.create(ctx, [
+                {
+                  productId: productVendure.id,
+                  sku: keycrmVariant.sku ? keycrmVariant.sku : '',
+                  price: keycrmVariant.price,
+                  stockOnHand: keycrmVariant.quantity,
+                  featuredAssetId: newAssetIds[0],
+                  optionIds: keycrmVariant.properties.map((prop) =>
+                    createdOptionsMap.get(
+                      `${productVendure.slug}-${prop.name}-${prop.value}`
+                    )
+                  ),
+                  customFields: {
+                    keycrm_id: `${keycrmVariant.id}`,
+                    keycrm_product_id: `${keycrmVariant.product_id}`,
+                    keycrm_created_at: keycrmVariant.created_at,
+                    keycrm_updated_at: keycrmVariant.updated_at,
+                  },
+                  translations: [
+                    {
+                      languageCode: LanguageCode.uk,
+                      name: [
+                        productVendure.name,
+                        ...keycrmVariant.properties.map(
+                          (prop) => `${prop.name} ${prop.value}`
+                        ),
+                        ,
+                      ].join(' '),
+                      customFields: {
+                        keycrm_id: `${keycrmVariant.id}`,
+                        keycrm_product_id: `${keycrmVariant.product_id}`,
+                        keycrm_created_at: keycrmVariant.created_at,
+                        keycrm_updated_at: keycrmVariant.updated_at,
+                      },
+                    },
+                  ],
+                },
+              ]);
             }
           }
         } else {
@@ -397,8 +458,9 @@ export class KeycrmSyncService implements OnModuleInit {
           }
           return update.result;
         })
-        .catch(() => {
+        .catch((e) => {
           Logger.error(`error.job-update`, loggerCtx);
+          console.info(e);
         });
     }
 
