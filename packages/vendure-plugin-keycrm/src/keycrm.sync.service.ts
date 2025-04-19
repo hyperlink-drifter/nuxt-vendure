@@ -54,59 +54,59 @@ export class KeycrmSyncService implements OnModuleInit {
       process: async (job) => {
         const ctx = RequestContext.deserialize(job.data.ctx);
 
-        const productKeycrm = job.data.product;
+        const keycrmProduct = job.data.product;
 
-        const slug = productKeycrm.custom_fields.find(
+        const slug = keycrmProduct.custom_fields.find(
           (field) => field.name === 'slug'
         )?.value;
 
         if (!slug) {
           Logger.error(`Could not find slug of keycrm product.`, loggerCtx);
-          Logger.error(`Id: ${productKeycrm.id}`, loggerCtx);
-          Logger.error(`Name: ${productKeycrm.name}`, loggerCtx);
+          Logger.error(`Id: ${keycrmProduct.id}`, loggerCtx);
+          Logger.error(`Name: ${keycrmProduct.name}`, loggerCtx);
           throw new Error('Job was cancelled');
         }
 
         const offerList = await this.keycrmClient.getOffers({
           limit: 50,
           include: 'product',
-          'filter[product_id]': `${productKeycrm.id}`,
+          'filter[product_id]': `${keycrmProduct.id}`,
         });
 
         const { data: keycrmVariants } = offerList;
 
-        const { product: productOfferKeycrm } = keycrmVariants[0];
+        const { product: keycrmProductOffer } = keycrmVariants[0];
 
-        if (!productOfferKeycrm) {
+        if (!keycrmProductOffer) {
           Logger.error(`Could not find included product in offer`, loggerCtx);
           throw new Error('Job was cancelled');
         }
 
-        const { properties_agg } = productOfferKeycrm;
+        const { properties_agg } = keycrmProductOffer;
 
         if (!properties_agg) {
           Logger.error(`Could not find aggregated properties`, loggerCtx);
           throw new Error('Job was cancelled');
         }
 
-        const productVendure = await this.productService.findOneBySlug(
+        const vendureProduct = await this.productService.findOneBySlug(
           ctx,
           slug
         );
 
         Logger.info(
-          `Product (${productKeycrm.id}) ${productKeycrm.name}`,
+          `Product (${keycrmProduct.id}) ${keycrmProduct.name}`,
           loggerCtx
         );
 
         //** Update Product */
-        if (productVendure) {
+        if (vendureProduct) {
           Logger.info(`Already available within vendure's system.`, loggerCtx);
           Logger.info(`Updating Product`, loggerCtx);
 
           const currentAssets = await this.assetService.getEntityAssets(
             ctx,
-            productVendure
+            vendureProduct
           );
 
           const currentAssetIds = currentAssets
@@ -114,42 +114,42 @@ export class KeycrmSyncService implements OnModuleInit {
             : [];
 
           const { assets: newAssets } = await this.assetImporter.getAssets(
-            productKeycrm.attachments_data
+            keycrmProduct.attachments_data
           );
 
           const newAssetIds = newAssets.map((asset) => asset.id);
 
           await this.productService.update(ctx, {
-            id: productVendure.id,
+            id: vendureProduct.id,
             assetIds: newAssetIds,
             featuredAssetId: newAssetIds[0],
             customFields: {
-              keycrm_id: `${productKeycrm.id}`,
-              keycrm_created_at: productKeycrm.created_at,
-              keycrm_updated_at: productKeycrm.updated_at,
+              keycrm_id: `${keycrmProduct.id}`,
+              keycrm_created_at: keycrmProduct.created_at,
+              keycrm_updated_at: keycrmProduct.updated_at,
             },
             translations: [
               {
                 languageCode: LanguageCode.uk,
-                name: productKeycrm.name,
+                name: keycrmProduct.name,
                 slug: slug,
-                description: productKeycrm.description
-                  ? productKeycrm.description
+                description: keycrmProduct.description
+                  ? keycrmProduct.description
                   : '',
               },
             ],
           });
 
           //** Assets deleted within keycrm still exist within vendure and must be deleted */
-          const leftBehindAssetIds = currentAssetIds.filter(
+          const leftbehindAssetIds = currentAssetIds.filter(
             (id) => !newAssetIds.includes(id)
           );
 
-          if (leftBehindAssetIds && leftBehindAssetIds.length) {
+          if (leftbehindAssetIds && leftbehindAssetIds.length) {
             Logger.info(`Deleting left-behind assets`, loggerCtx);
             const deletionResponse = await this.assetService.delete(
               ctx,
-              leftBehindAssetIds
+              leftbehindAssetIds
             );
             Logger.info(`${JSON.stringify(deletionResponse)}`, loggerCtx);
           }
@@ -158,13 +158,13 @@ export class KeycrmSyncService implements OnModuleInit {
           const currentOptionGroups =
             await this.productOptionGroupService.getOptionGroupsByProductId(
               ctx,
-              productVendure.id
+              vendureProduct.id
             );
 
           for (const group of currentOptionGroups) {
             await this.productService.removeOptionGroupFromProduct(
               ctx,
-              productVendure.id,
+              vendureProduct.id,
               group.id,
               // Removal of this ProductOptionGroup will be forced by first
               // removing all ProductOptions from the ProductVariants
@@ -178,7 +178,7 @@ export class KeycrmSyncService implements OnModuleInit {
             const newOptionGroup = await this.productOptionGroupService.create(
               ctx,
               {
-                code: `${productVendure.slug}-${key}`,
+                code: `${vendureProduct.slug}-${key}`,
                 translations: [
                   {
                     languageCode: LanguageCode.uk,
@@ -189,7 +189,7 @@ export class KeycrmSyncService implements OnModuleInit {
             );
 
             for (const option of properties_agg[key]) {
-              const optionCode = `${productVendure.slug}-${key}-${option}`;
+              const optionCode = `${vendureProduct.slug}-${key}-${option}`;
               const createdOption = await this.productOptionService.create(
                 ctx,
                 newOptionGroup.id,
@@ -210,14 +210,15 @@ export class KeycrmSyncService implements OnModuleInit {
 
             await this.productService.addOptionGroupToProduct(
               ctx,
-              productVendure.id,
+              vendureProduct.id,
               newOptionGroup.id
             );
           }
 
           /** Variants */
+          /** From Keycrm to Vendure */
           for (const keycrmVariant of keycrmVariants) {
-            const variantVendure = await this.connection
+            const vendureVariant = await this.connection
               .getRepository(ctx, ProductVariant)
               .findOne({
                 where: {
@@ -233,10 +234,10 @@ export class KeycrmSyncService implements OnModuleInit {
             const newAssetIds = newAssets.map((asset) => asset.id);
 
             //** Update Variant */
-            if (variantVendure) {
+            if (vendureVariant) {
               const currentAssets = await this.assetService.getEntityAssets(
                 ctx,
-                variantVendure
+                vendureVariant
               );
 
               const currentAssetIds = currentAssets
@@ -245,14 +246,14 @@ export class KeycrmSyncService implements OnModuleInit {
 
               await this.productVariantService.update(ctx, [
                 {
-                  id: variantVendure.id,
+                  id: vendureVariant.id,
                   sku: keycrmVariant.sku ? keycrmVariant.sku : '',
                   price: keycrmVariant.price,
                   stockOnHand: keycrmVariant.quantity,
                   featuredAssetId: newAssetIds[0],
                   optionIds: keycrmVariant.properties.map((prop) =>
                     createdOptionsMap.get(
-                      `${productVendure.slug}-${prop.name}-${prop.value}`
+                      `${vendureProduct.slug}-${prop.name}-${prop.value}`
                     )
                   ),
                   customFields: {
@@ -265,7 +266,7 @@ export class KeycrmSyncService implements OnModuleInit {
                     {
                       languageCode: LanguageCode.uk,
                       name: [
-                        productVendure.name,
+                        vendureProduct.name,
                         ...keycrmVariant.properties.map(
                           (prop) => `${prop.name} ${prop.value}`
                         ),
@@ -283,11 +284,11 @@ export class KeycrmSyncService implements OnModuleInit {
               ]);
 
               //** Assets deleted within keycrm still exist within vendure and must be deleted */
-              const leftBehindAssetIds = currentAssetIds.filter(
+              const leftbehindAssetIds = currentAssetIds.filter(
                 (id) => !newAssetIds.includes(id)
               );
 
-              if (leftBehindAssetIds && leftBehindAssetIds.length) {
+              if (leftbehindAssetIds && leftbehindAssetIds.length) {
                 Logger.info(
                   `Deleting left-behind assets of Variant`,
                   loggerCtx
@@ -295,7 +296,7 @@ export class KeycrmSyncService implements OnModuleInit {
 
                 const deletionResponse = await this.assetService.delete(
                   ctx,
-                  leftBehindAssetIds
+                  leftbehindAssetIds
                 );
 
                 Logger.info(`${JSON.stringify(deletionResponse)}`, loggerCtx);
@@ -305,14 +306,14 @@ export class KeycrmSyncService implements OnModuleInit {
             else {
               await this.productVariantService.create(ctx, [
                 {
-                  productId: productVendure.id,
+                  productId: vendureProduct.id,
                   sku: keycrmVariant.sku ? keycrmVariant.sku : '',
                   price: keycrmVariant.price,
                   stockOnHand: keycrmVariant.quantity,
                   featuredAssetId: newAssetIds[0],
                   optionIds: keycrmVariant.properties.map((prop) =>
                     createdOptionsMap.get(
-                      `${productVendure.slug}-${prop.name}-${prop.value}`
+                      `${vendureProduct.slug}-${prop.name}-${prop.value}`
                     )
                   ),
                   customFields: {
@@ -325,7 +326,7 @@ export class KeycrmSyncService implements OnModuleInit {
                     {
                       languageCode: LanguageCode.uk,
                       name: [
-                        productVendure.name,
+                        vendureProduct.name,
                         ...keycrmVariant.properties.map(
                           (prop) => `${prop.name} ${prop.value}`
                         ),
@@ -352,19 +353,19 @@ export class KeycrmSyncService implements OnModuleInit {
                 translations: [
                   {
                     languageCode: LanguageCode.uk,
-                    name: productKeycrm.name,
+                    name: keycrmProduct.name,
                     slug: slug,
-                    description: productKeycrm.description
-                      ? productKeycrm.description
+                    description: keycrmProduct.description
+                      ? keycrmProduct.description
                       : '',
                     customFields: {
-                      keycrm_id: `${productKeycrm.id}`,
-                      keycrm_created_at: productKeycrm.created_at,
-                      keycrm_updated_at: productKeycrm.updated_at,
+                      keycrm_id: `${keycrmProduct.id}`,
+                      keycrm_created_at: keycrmProduct.created_at,
+                      keycrm_updated_at: keycrmProduct.updated_at,
                     },
                   },
                 ],
-                assetPaths: productKeycrm.attachments_data.map((url) => url),
+                assetPaths: keycrmProduct.attachments_data.map((url) => url),
                 facets: [],
                 optionGroups: Object.keys(properties_agg).map((key) => ({
                   translations: [
@@ -410,7 +411,7 @@ export class KeycrmSyncService implements OnModuleInit {
           try {
             await this.importer.importProducts(ctx, importRow, () => {
               Logger.info(
-                `Imported product (${productKeycrm.id}) ${productKeycrm.name}`,
+                `Imported product (${keycrmProduct.id}) ${keycrmProduct.name}`,
                 loggerCtx
               );
             });
