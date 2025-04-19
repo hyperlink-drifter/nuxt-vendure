@@ -275,8 +275,7 @@ export class KeycrmSyncService implements OnModuleInit {
                 sku: keycrmVariant.sku ? keycrmVariant.sku : '',
                 price: keycrmVariant.price,
                 stockOnHand: keycrmVariant.quantity,
-                // no featuredAssetId as long as vendure's importer (uses assetPaths) is used below
-                // must use assetIds to ensure assets will be deleted in a proper way
+                featuredAssetId: newAssetIds[0],
                 assetIds: newAssetIds,
                 optionIds: keycrmVariant.properties.map((prop) =>
                   createdOptionsMap.get(
