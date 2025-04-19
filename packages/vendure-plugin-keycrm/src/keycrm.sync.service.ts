@@ -11,19 +11,16 @@ import {
   ProductOptionGroupService,
   ProductOptionService,
   ProductService,
-  ProductVariant,
   ProductVariantService,
   RequestContext,
   SearchService,
   SerializedRequestContext,
-  TransactionalConnection,
 } from '@vendure/core';
 import {
   GlobalFlag,
   JobState,
   LanguageCode,
 } from '@vendure/common/lib/generated-types';
-import { In, IsNull } from 'typeorm';
 import { loggerCtx } from './constants';
 import { ProductKeycrm } from './types';
 
@@ -44,8 +41,7 @@ export class KeycrmSyncService implements OnModuleInit {
     private productOptionService: ProductOptionService,
     private searchService: SearchService,
     private importer: Importer,
-    private assetImporter: AssetImporter,
-    private connection: TransactionalConnection
+    private assetImporter: AssetImporter
   ) {}
 
   async onModuleInit() {
@@ -216,22 +212,60 @@ export class KeycrmSyncService implements OnModuleInit {
           }
 
           /** Variants */
+          const { items: vendureVariants } =
+            await this.productVariantService.getVariantsByProductId(
+              ctx,
+              vendureProduct.id
+            );
+
           /** From Keycrm to Vendure */
           for (const keycrmVariant of keycrmVariants) {
-            const vendureVariant = await this.connection
-              .getRepository(ctx, ProductVariant)
-              .findOne({
-                where: {
-                  customFields: { keycrm_id: keycrmVariant.id },
-                  deletedAt: IsNull(),
-                },
-              });
+            const vendureVariant = vendureVariants.find(
+              (vendureVariant) =>
+                vendureVariant.customFields.keycrm_id === keycrmVariant.id
+            );
 
             const { assets: newAssets } = await this.assetImporter.getAssets([
               keycrmVariant.thumbnail_url ? keycrmVariant.thumbnail_url : '',
             ]);
 
             const newAssetIds = newAssets.map((asset) => asset.id);
+
+            const preparedProductVariantInput = {
+              sku: keycrmVariant.sku ? keycrmVariant.sku : '',
+              price: keycrmVariant.price,
+              stockOnHand: keycrmVariant.quantity,
+              featuredAssetId: newAssetIds[0],
+              optionIds: keycrmVariant.properties.map((prop) =>
+                createdOptionsMap.get(
+                  `${vendureProduct.slug}-${prop.name}-${prop.value}`
+                )
+              ),
+              customFields: {
+                keycrm_id: `${keycrmVariant.id}`,
+                keycrm_product_id: `${keycrmVariant.product_id}`,
+                keycrm_created_at: keycrmVariant.created_at,
+                keycrm_updated_at: keycrmVariant.updated_at,
+              },
+              translations: [
+                {
+                  languageCode: LanguageCode.uk,
+                  name: [
+                    vendureProduct.name,
+                    ...keycrmVariant.properties.map(
+                      (prop) => `${prop.name} ${prop.value}`
+                    ),
+                    ,
+                  ].join(' '),
+                  customFields: {
+                    keycrm_id: `${keycrmVariant.id}`,
+                    keycrm_product_id: `${keycrmVariant.product_id}`,
+                    keycrm_created_at: keycrmVariant.created_at,
+                    keycrm_updated_at: keycrmVariant.updated_at,
+                  },
+                },
+              ],
+            };
 
             //** Update Variant */
             if (vendureVariant) {
@@ -247,39 +281,7 @@ export class KeycrmSyncService implements OnModuleInit {
               await this.productVariantService.update(ctx, [
                 {
                   id: vendureVariant.id,
-                  sku: keycrmVariant.sku ? keycrmVariant.sku : '',
-                  price: keycrmVariant.price,
-                  stockOnHand: keycrmVariant.quantity,
-                  featuredAssetId: newAssetIds[0],
-                  optionIds: keycrmVariant.properties.map((prop) =>
-                    createdOptionsMap.get(
-                      `${vendureProduct.slug}-${prop.name}-${prop.value}`
-                    )
-                  ),
-                  customFields: {
-                    keycrm_id: `${keycrmVariant.id}`,
-                    keycrm_product_id: `${keycrmVariant.product_id}`,
-                    keycrm_created_at: keycrmVariant.created_at,
-                    keycrm_updated_at: keycrmVariant.updated_at,
-                  },
-                  translations: [
-                    {
-                      languageCode: LanguageCode.uk,
-                      name: [
-                        vendureProduct.name,
-                        ...keycrmVariant.properties.map(
-                          (prop) => `${prop.name} ${prop.value}`
-                        ),
-                        ,
-                      ].join(' '),
-                      customFields: {
-                        keycrm_id: `${keycrmVariant.id}`,
-                        keycrm_product_id: `${keycrmVariant.product_id}`,
-                        keycrm_created_at: keycrmVariant.created_at,
-                        keycrm_updated_at: keycrmVariant.updated_at,
-                      },
-                    },
-                  ],
+                  ...preparedProductVariantInput,
                 },
               ]);
 
@@ -307,39 +309,7 @@ export class KeycrmSyncService implements OnModuleInit {
               await this.productVariantService.create(ctx, [
                 {
                   productId: vendureProduct.id,
-                  sku: keycrmVariant.sku ? keycrmVariant.sku : '',
-                  price: keycrmVariant.price,
-                  stockOnHand: keycrmVariant.quantity,
-                  featuredAssetId: newAssetIds[0],
-                  optionIds: keycrmVariant.properties.map((prop) =>
-                    createdOptionsMap.get(
-                      `${vendureProduct.slug}-${prop.name}-${prop.value}`
-                    )
-                  ),
-                  customFields: {
-                    keycrm_id: `${keycrmVariant.id}`,
-                    keycrm_product_id: `${keycrmVariant.product_id}`,
-                    keycrm_created_at: keycrmVariant.created_at,
-                    keycrm_updated_at: keycrmVariant.updated_at,
-                  },
-                  translations: [
-                    {
-                      languageCode: LanguageCode.uk,
-                      name: [
-                        vendureProduct.name,
-                        ...keycrmVariant.properties.map(
-                          (prop) => `${prop.name} ${prop.value}`
-                        ),
-                        ,
-                      ].join(' '),
-                      customFields: {
-                        keycrm_id: `${keycrmVariant.id}`,
-                        keycrm_product_id: `${keycrmVariant.product_id}`,
-                        keycrm_created_at: keycrmVariant.created_at,
-                        keycrm_updated_at: keycrmVariant.updated_at,
-                      },
-                    },
-                  ],
+                  ...preparedProductVariantInput,
                 },
               ]);
             }
