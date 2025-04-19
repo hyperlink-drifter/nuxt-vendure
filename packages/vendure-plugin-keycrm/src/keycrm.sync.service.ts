@@ -189,9 +189,9 @@ export class KeycrmSyncService implements OnModuleInit {
             throw new Error('Job was cancelled');
           }
 
-          const vendureProduct = await this.productService.findOneBySlug(
-            ctx,
-            slug
+          const vendureProduct = vendureProducts.find(
+            (vendureProduct) =>
+              vendureProduct.customFields.keycrm_id === keycrmProduct.id
           );
 
           Logger.info(
