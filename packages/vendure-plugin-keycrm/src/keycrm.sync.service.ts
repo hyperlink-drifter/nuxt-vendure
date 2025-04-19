@@ -47,12 +47,113 @@ export class KeycrmSyncService implements OnModuleInit {
       process: async (job) => {
         const ctx = RequestContext.deserialize(job.data.ctx);
 
-        const productList = await this.keycrmClient.getProducts({
+        const { data: keycrmProducts } = await this.keycrmClient.getProducts({
           limit: 50,
           include: 'custom_fields',
         });
 
-        const { data: keycrmProducts } = productList;
+        const { items: vendureProducts } = await this.productService.findAll(
+          ctx
+        );
+
+        // Products deleted within keycrm still exist within vendure and must be deleted
+        // Assets of a deleted product shall be deleted as well
+        // Assets of a deleted product's variants shall be deleted as well
+        const leftbehindProducts = vendureProducts.filter(
+          (vendureProduct) =>
+            !keycrmProducts.some(
+              (keycrmProduct) =>
+                keycrmProduct.id === vendureProduct.customFields.keycrm_id
+            )
+        );
+
+        if (leftbehindProducts && leftbehindProducts.length) {
+          for (const leftbehindProduct of leftbehindProducts) {
+            Logger.info(
+              `Deleting left-behind Product ${leftbehindProduct.id}`,
+              loggerCtx
+            );
+
+            const { items: leftbehindVariants } =
+              await this.productVariantService.getVariantsByProductId(
+                ctx,
+                leftbehindProduct.id
+              );
+
+            const deletionResponse = await this.productService.softDelete(
+              ctx,
+              leftbehindProduct.id
+            );
+
+            Logger.info(`Result: ${deletionResponse.result}`, loggerCtx);
+
+            if (deletionResponse.result === DeletionResult.NOT_DELETED) {
+              Logger.info(`Message: ${deletionResponse.message}`, loggerCtx);
+              continue;
+            }
+
+            const leftbehindAssets = await this.assetService.getEntityAssets(
+              ctx,
+              leftbehindProduct
+            );
+
+            const leftbehindAssetIds = leftbehindAssets
+              ? leftbehindAssets.map((asset) => asset.id)
+              : [];
+
+            if (leftbehindAssetIds && leftbehindAssetIds.length) {
+              Logger.info(
+                `Deleting left-behind assets of left-behind Product`,
+                loggerCtx
+              );
+
+              const deletionResponse = await this.assetService.delete(
+                ctx,
+                leftbehindAssetIds
+              );
+
+              Logger.info(`Result: ${deletionResponse.result}`, loggerCtx);
+              if (deletionResponse.result === DeletionResult.NOT_DELETED) {
+                Logger.info(`Message: ${deletionResponse.message}`, loggerCtx);
+              }
+            }
+
+            if (leftbehindVariants && leftbehindVariants.length) {
+              Logger.info(`Left-behind Product has Variants`, loggerCtx);
+              for (const leftbehindVariant of leftbehindVariants) {
+                const leftbehindAssets =
+                  await this.assetService.getEntityAssets(
+                    ctx,
+                    leftbehindVariant
+                  );
+
+                const leftbehindAssetIds = leftbehindAssets
+                  ? leftbehindAssets.map((asset) => asset.id)
+                  : [];
+
+                if (leftbehindAssetIds && leftbehindAssetIds.length) {
+                  Logger.info(
+                    `Deleting left-behind assets of left-behind Product's Variant`,
+                    loggerCtx
+                  );
+
+                  const deletionResponse = await this.assetService.delete(
+                    ctx,
+                    leftbehindAssetIds
+                  );
+
+                  Logger.info(`Result: ${deletionResponse.result}`, loggerCtx);
+                  if (deletionResponse.result === DeletionResult.NOT_DELETED) {
+                    Logger.info(
+                      `Message: ${deletionResponse.message}`,
+                      loggerCtx
+                    );
+                  }
+                }
+              }
+            }
+          }
+        }
 
         for (const keycrmProduct of keycrmProducts) {
           const slug = keycrmProduct.custom_fields.find(
