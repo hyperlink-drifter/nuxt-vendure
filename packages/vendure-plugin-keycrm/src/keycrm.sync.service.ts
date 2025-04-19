@@ -247,6 +247,9 @@ export class KeycrmSyncService implements OnModuleInit {
                   `${vendureProduct.slug}-${prop.name}-${prop.value}`
                 )
               ),
+              // definition of custom fields must be top level
+              // otherwise data will be null and variants can not be linked
+              // between keycrm and vendure
               customFields: {
                 keycrm_id: `${keycrmVariant.id}`,
                 keycrm_product_id: `${keycrmVariant.product_id}`,
