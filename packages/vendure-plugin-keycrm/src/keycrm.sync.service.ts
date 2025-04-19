@@ -224,7 +224,38 @@ export class KeycrmSyncService implements OnModuleInit {
               vendureProduct.id
             );
 
-          /** From Keycrm to Vendure */
+          // Variants deleted within keycrm still exist within vendure and must be deleted
+          const leftbehindVariants = vendureVariants.filter(
+            (vendureVariant) =>
+              !keycrmVariants.some(
+                (keycrmVariant) =>
+                  keycrmVariant.id === vendureVariant.customFields.keycrm_id
+              )
+          );
+
+          const leftbehindVariantIds = leftbehindVariants.map(
+            (variant) => variant.id
+          );
+
+          if (leftbehindVariantIds && leftbehindVariantIds.length) {
+            Logger.info(
+              `Deleting left-behind Variants ${leftbehindVariantIds}`,
+              loggerCtx
+            );
+
+            const deletionResponse =
+              await this.productVariantService.softDelete(
+                ctx,
+                leftbehindVariantIds
+              );
+
+            Logger.info(`Result: ${deletionResponse.result}`, loggerCtx);
+            if (deletionResponse.result === DeletionResult.NOT_DELETED) {
+              Logger.info(`Message: ${deletionResponse.message}`, loggerCtx);
+            }
+          }
+
+          /* From Keycrm to Vendure */
           for (const keycrmVariant of keycrmVariants) {
             const vendureVariant = vendureVariants.find(
               (vendureVariant) =>
