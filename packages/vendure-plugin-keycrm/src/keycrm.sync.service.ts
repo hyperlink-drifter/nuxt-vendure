@@ -56,6 +56,16 @@ export class KeycrmSyncService implements OnModuleInit {
           ctx
         );
 
+        for (const vendureProduct of vendureProducts) {
+          const { items: variants } =
+            await this.productVariantService.getVariantsByProductId(
+              ctx,
+              vendureProduct.id
+            );
+
+          vendureProduct.variants = variants;
+        }
+
         // Products deleted within keycrm still exist within vendure and must be deleted
         // Assets of a deleted product shall be deleted as well
         // Assets of a deleted product's variants shall be deleted as well
@@ -73,12 +83,6 @@ export class KeycrmSyncService implements OnModuleInit {
               `Deleting left-behind Product ${leftbehindProduct.id}`,
               loggerCtx
             );
-
-            const { items: leftbehindVariants } =
-              await this.productVariantService.getVariantsByProductId(
-                ctx,
-                leftbehindProduct.id
-              );
 
             const deletionResponse = await this.productService.softDelete(
               ctx,
@@ -117,6 +121,8 @@ export class KeycrmSyncService implements OnModuleInit {
                 Logger.info(`Message: ${deletionResponse.message}`, loggerCtx);
               }
             }
+
+            const { variants: leftbehindVariants } = leftbehindProduct;
 
             if (leftbehindVariants && leftbehindVariants.length) {
               Logger.info(`Left-behind Product has Variants`, loggerCtx);
@@ -322,11 +328,7 @@ export class KeycrmSyncService implements OnModuleInit {
             }
 
             /** Variants */
-            const { items: vendureVariants } =
-              await this.productVariantService.getVariantsByProductId(
-                ctx,
-                vendureProduct.id
-              );
+            const { variants: vendureVariants } = vendureProduct;
 
             // Variants deleted within keycrm still exist within vendure and must be deleted
             const leftbehindVariants = vendureVariants.filter(
