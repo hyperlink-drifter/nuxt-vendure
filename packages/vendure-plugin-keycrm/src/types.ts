@@ -32,6 +32,7 @@ export interface PluginInitOptions {
    * Private API key from your Keycrm Account
    */
   apiKey: string;
+  synchronizerCode: string;
 }
 
 export type ProductCustomFieldKeycrm = {
