@@ -58,18 +58,20 @@ export type ProductKeycrm = {
   created_at: string;
   updated_at: string;
   custom_fields: Array<ProductCustomFieldKeycrm>;
+  offers: Array<OfferKeycrm>;
+  properties_agg: Record<string, string[]>;
 };
 
 export type ProductListKeycrm = {
   total: number;
   current_page: number;
   per_page: number;
-  data: Array<ProductKeycrm>;
+  data: Array<ProductKeycrm> | Array<ProductWithOfferKeycrm>;
 };
 
-export type ProductOfferKeycrm = ProductKeycrm & {
+export type ProductWithOfferKeycrm = ProductKeycrm & {
   properties_agg?: Record<string, string[]>;
-  offers: Array<OfferKeycrm>;
+  offers?: Array<OfferKeycrm>;
 };
 
 export type OfferKeycrm = {
@@ -86,7 +88,7 @@ export type OfferKeycrm = {
   width: number | null;
   height: number | null;
   properties: Array<{ name: string; value: string }>;
-  product?: ProductOfferKeycrm;
+  product?: ProductWithOfferKeycrm;
   created_at: string;
   updated_at: string;
 };

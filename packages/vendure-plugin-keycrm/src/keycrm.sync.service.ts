@@ -52,6 +52,32 @@ export class KeycrmSyncService implements OnModuleInit {
           include: 'custom_fields',
         });
 
+        for (const keycrmProduct of keycrmProducts) {
+          const { data: keycrmVariants } = await this.keycrmClient.getOffers({
+            limit: 50,
+            include: 'product',
+            'filter[product_id]': `${keycrmProduct.id}`,
+          });
+
+          keycrmProduct.offers = keycrmVariants;
+
+          const { product: keycrmProductOffer } = keycrmVariants[0];
+
+          if (!keycrmProductOffer) {
+            Logger.error(`Could not find included product in offer`, loggerCtx);
+            throw new Error('Job was cancelled');
+          }
+
+          const { properties_agg } = keycrmProductOffer;
+
+          if (!properties_agg) {
+            Logger.error(`Could not find aggregated properties`, loggerCtx);
+            throw new Error('Job was cancelled');
+          }
+
+          keycrmProduct.properties_agg = properties_agg;
+        }
+
         const { items: vendureProducts } = await this.productService.findAll(
           ctx
         );
@@ -176,22 +202,7 @@ export class KeycrmSyncService implements OnModuleInit {
             throw new Error('Job was cancelled');
           }
 
-          const offerList = await this.keycrmClient.getOffers({
-            limit: 50,
-            include: 'product',
-            'filter[product_id]': `${keycrmProduct.id}`,
-          });
-
-          const { data: keycrmVariants } = offerList;
-
-          const { product: keycrmProductOffer } = keycrmVariants[0];
-
-          if (!keycrmProductOffer) {
-            Logger.error(`Could not find included product in offer`, loggerCtx);
-            throw new Error('Job was cancelled');
-          }
-
-          const { properties_agg } = keycrmProductOffer;
+          const { properties_agg } = keycrmProduct;
 
           if (!properties_agg) {
             Logger.error(`Could not find aggregated properties`, loggerCtx);
@@ -207,6 +218,8 @@ export class KeycrmSyncService implements OnModuleInit {
             `Product (${keycrmProduct.id}) ${keycrmProduct.name}`,
             loggerCtx
           );
+
+          const { offers: keycrmVariants } = keycrmProduct;
 
           // Update Product
           if (vendureProduct) {

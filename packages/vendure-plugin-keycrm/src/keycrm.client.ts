@@ -47,11 +47,16 @@ export class KeycrmClient {
       page: 1,
     }
   ): Promise<ProductListKeycrm> {
-    const products = await this.$fetch<ProductListKeycrm>('products', {
+    const productList = await this.$fetch<ProductListKeycrm>('products', {
       query,
     });
 
-    return products;
+    for (const product of productList.data) {
+      product.offers = [];
+      product.properties_agg = {};
+    }
+
+    return productList;
   }
 
   async getOffers(
