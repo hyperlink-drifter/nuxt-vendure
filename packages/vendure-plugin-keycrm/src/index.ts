@@ -7,5 +7,5 @@
  * - events
  * - custom strategies that can be configured by the user of the plugin
  */
-export { type PluginInitOptions } from './src/types';
-export * from './src/cron.plugin';
+export { type PluginInitOptions } from './types';
+export * from './keycrm.plugin';
