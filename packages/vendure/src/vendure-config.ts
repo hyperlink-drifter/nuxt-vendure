@@ -106,17 +106,18 @@ export const config: VendureConfig = {
         apiPort: serverPort,
       },
     }),
-    CronPlugin.init({
-      cron: [
-        {
-          schedule: '* * 1 * * *',
-          taskId: 'midnightBackup',
-        },
-      ],
-      logEvents: true,
-    }),
+    // CronPlugin.init({
+    //   cron: [
+    //     {
+    //       schedule: '* * 1 * * *',
+    //       taskId: 'midnightBackup',
+    //     },
+    //   ],
+    //   logEvents: true,
+    // }),
     KeycrmPlugin.init({
       apiKey: process.env.KEYCRM_API_KEY,
+      synchronizerCode: process.env.SYNCHRONIZER_CODE,
     }),
   ],
 };
