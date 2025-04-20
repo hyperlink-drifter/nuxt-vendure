@@ -161,7 +161,10 @@ export class KeycrmSyncService implements OnModuleInit {
           }
         }
 
+        // Products within keycrm must be synced to vendure.
+        // Either by updating existing Products or by importing new Products.
         for (const keycrmProduct of keycrmProducts) {
+          // Within keycrm there must be a custom field named slug configured which is attached to each Product
           const slug = keycrmProduct.custom_fields.find(
             (field) => field.name === 'slug'
           )?.value;
@@ -205,7 +208,7 @@ export class KeycrmSyncService implements OnModuleInit {
             loggerCtx
           );
 
-          //** Update Product */
+          // Update Product
           if (vendureProduct) {
             Logger.info(
               `Already available within vendure's system.`,
@@ -249,7 +252,7 @@ export class KeycrmSyncService implements OnModuleInit {
               ],
             });
 
-            //** Assets deleted within keycrm still exist within vendure and must be deleted */
+            // Assets deleted within keycrm still exist within vendure and must be deleted
             const leftbehindAssetIds = currentAssetIds.filter(
               (id) => !newAssetIds.includes(id)
             );
@@ -268,7 +271,7 @@ export class KeycrmSyncService implements OnModuleInit {
               }
             }
 
-            /** OptionGroups and Options */
+            // OptionGroups and Options
             const currentOptionGroups =
               await this.productOptionGroupService.getOptionGroupsByProductId(
                 ctx,
@@ -327,7 +330,7 @@ export class KeycrmSyncService implements OnModuleInit {
               );
             }
 
-            /** Variants */
+            // Variants
             const { variants: vendureVariants } = vendureProduct;
 
             // Variants deleted within keycrm still exist within vendure and must be deleted
@@ -361,7 +364,7 @@ export class KeycrmSyncService implements OnModuleInit {
               }
             }
 
-            /* From Keycrm to Vendure */
+            //From Keycrm to Vendure
             for (const keycrmVariant of keycrmVariants) {
               const vendureVariant = vendureVariants.find(
                 (vendureVariant) =>
@@ -414,7 +417,7 @@ export class KeycrmSyncService implements OnModuleInit {
                 ],
               };
 
-              //** Update Variant */
+              // Update Variant
               if (vendureVariant) {
                 const currentAssets = await this.assetService.getEntityAssets(
                   ctx,
@@ -432,7 +435,7 @@ export class KeycrmSyncService implements OnModuleInit {
                   },
                 ]);
 
-                //** Assets deleted within keycrm still exist within vendure and must be deleted */
+                // Assets deleted within keycrm still exist within vendure and must be deleted
                 const leftbehindAssetIds = currentAssetIds.filter(
                   (id) => !newAssetIds.includes(id)
                 );
@@ -457,7 +460,7 @@ export class KeycrmSyncService implements OnModuleInit {
                   }
                 }
               }
-              //** Create Variant */
+              // Create Variant
               else {
                 await this.productVariantService.create(ctx, [
                   {
